@@ -1,0 +1,1465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KSENIA — Trainer Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --bg: #0a0a0a;
+  --surface: #141414;
+  --surface-2: #1c1c1e;
+  --surface-3: #2c2c2e;
+  --accent: #c9a96e;
+  --accent-light: #dfc292;
+  --accent-dim: rgba(201,169,110,0.15);
+  --text: #f5f5f5;
+  --text-secondary: #8e8e93;
+  --text-muted: #636366;
+  --success: #30d158;
+  --warning: #ff9f0a;
+  --error: #ff453a;
+  --info: #64d2ff;
+  --purple: #bf94e4;
+  --border: rgba(255,255,255,0.06);
+  --radius: 16px;
+  --radius-sm: 10px;
+}
+
+html { font-size: 16px; }
+body {
+  font-family: 'Inter', -apple-system, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Layout */
+.layout {
+  display: flex;
+  min-height: 100vh;
+}
+
+/* Sidebar */
+.sidebar {
+  width: 260px;
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  padding: 24px 0;
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  z-index: 100;
+}
+
+.sidebar-brand {
+  padding: 0 24px 24px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 8px;
+}
+.sidebar-brand .brand-name {
+  font-family: 'Playfair Display', serif;
+  font-size: 22px;
+  font-weight: 500;
+  letter-spacing: 2px;
+}
+.sidebar-brand .brand-sub {
+  font-size: 11px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  margin-top: 4px;
+}
+
+.sidebar-nav { flex: 1; padding: 8px 12px; }
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 14px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 400;
+  color: var(--text-secondary);
+  transition: all 0.15s;
+  margin-bottom: 2px;
+  border: none;
+  background: none;
+  width: 100%;
+  text-align: left;
+  font-family: inherit;
+}
+.nav-item:hover { background: var(--surface-2); color: var(--text); }
+.nav-item.active { background: var(--accent-dim); color: var(--accent); font-weight: 500; }
+.nav-item svg { width: 20px; height: 20px; flex-shrink: 0; }
+.nav-badge {
+  margin-left: auto;
+  background: var(--error);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 7px;
+  border-radius: 10px;
+}
+
+.sidebar-footer {
+  padding: 16px 24px;
+  border-top: 1px solid var(--border);
+}
+.trainer-profile {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.trainer-avatar {
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent), var(--accent-light));
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 600; font-size: 13px; color: var(--bg);
+}
+.trainer-name { font-size: 14px; font-weight: 500; }
+.trainer-role { font-size: 11px; color: var(--text-muted); }
+
+/* Main Content */
+.main {
+  flex: 1;
+  margin-left: 260px;
+  padding: 28px 36px;
+  max-width: calc(100vw - 260px);
+}
+
+/* Top Bar */
+.top-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 28px;
+}
+.page-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 28px;
+  font-weight: 500;
+}
+.top-actions { display: flex; gap: 10px; align-items: center; }
+
+.search-box {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 9px 14px;
+  min-width: 260px;
+}
+.search-box svg { width: 16px; height: 16px; color: var(--text-muted); flex-shrink: 0; }
+.search-box input {
+  border: none;
+  background: none;
+  color: var(--text);
+  font-size: 13px;
+  outline: none;
+  width: 100%;
+  font-family: inherit;
+}
+.search-box input::placeholder { color: var(--text-muted); }
+
+.btn {
+  padding: 9px 18px;
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  font-weight: 500;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.15s;
+}
+.btn-primary { background: var(--accent); color: var(--bg); }
+.btn-primary:hover { background: var(--accent-light); }
+.btn-secondary { background: var(--surface-2); color: var(--text); border: 1px solid var(--border); }
+.btn-secondary:hover { background: var(--surface-3); }
+.btn-sm { padding: 6px 12px; font-size: 12px; }
+.btn-icon {
+  width: 34px; height: 34px; padding: 0;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  cursor: pointer; color: var(--text-secondary);
+  transition: all 0.15s;
+}
+.btn-icon:hover { background: var(--surface-3); color: var(--text); }
+
+/* Stats Row */
+.stats-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 28px;
+}
+.stat-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+}
+.stat-card .stat-label {
+  font-size: 12px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  margin-bottom: 8px;
+}
+.stat-card .stat-value {
+  font-family: 'Playfair Display', serif;
+  font-size: 32px;
+  font-weight: 500;
+}
+.stat-card .stat-change {
+  font-size: 12px;
+  margin-top: 6px;
+}
+
+/* Table */
+.table-container {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+.table-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+}
+.table-title { font-size: 16px; font-weight: 600; }
+.table-filters { display: flex; gap: 8px; }
+.filter-chip {
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  border: 1px solid var(--border);
+  background: none;
+  color: var(--text-secondary);
+  font-family: inherit;
+  transition: all 0.15s;
+}
+.filter-chip.active { background: var(--accent-dim); color: var(--accent); border-color: rgba(201,169,110,0.3); }
+.filter-chip:hover { background: var(--surface-2); }
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+thead th {
+  text-align: left;
+  padding: 12px 20px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+  user-select: none;
+}
+thead th:hover { color: var(--text-secondary); }
+tbody tr {
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+  transition: background 0.1s;
+}
+tbody tr:hover { background: var(--surface-2); }
+tbody tr:last-child { border-bottom: none; }
+tbody td {
+  padding: 14px 20px;
+  font-size: 14px;
+  vertical-align: middle;
+}
+
+.client-cell {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.client-avatar {
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 600; font-size: 12px; color: var(--bg);
+  flex-shrink: 0;
+}
+.client-cell .name { font-weight: 500; }
+.client-cell .email { font-size: 12px; color: var(--text-muted); }
+
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+}
+.status-active { background: rgba(48,209,88,0.12); color: var(--success); }
+.status-paused { background: rgba(255,159,10,0.12); color: var(--warning); }
+.status-inactive { background: rgba(255,69,58,0.12); color: var(--error); }
+.status-dot { width: 6px; height: 6px; border-radius: 50%; }
+.status-active .status-dot { background: var(--success); }
+.status-paused .status-dot { background: var(--warning); }
+.status-inactive .status-dot { background: var(--error); }
+
+.metric-bar {
+  display: flex; align-items: center; gap: 8px;
+}
+.metric-bar-track {
+  flex: 1; height: 6px;
+  background: var(--surface-3);
+  border-radius: 3px; overflow: hidden;
+  min-width: 60px;
+}
+.metric-bar-fill { height: 100%; border-radius: 3px; }
+.metric-bar-label { font-size: 13px; font-weight: 500; min-width: 36px; text-align: right; }
+
+/* Pages */
+.admin-page { display: none; }
+.admin-page.active { display: block; }
+
+/* Client Detail Panel */
+.detail-overlay {
+  position: fixed;
+  top: 0; right: 0;
+  width: 520px;
+  height: 100vh;
+  background: var(--surface);
+  border-left: 1px solid var(--border);
+  z-index: 200;
+  transform: translateX(100%);
+  transition: transform 0.3s ease;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+.detail-overlay.open { transform: translateX(0); }
+
+.detail-backdrop {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.4);
+  z-index: 199;
+  display: none;
+}
+.detail-backdrop.open { display: block; }
+
+.detail-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  background: var(--surface);
+  z-index: 1;
+}
+.detail-header .close-btn {
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  background: var(--surface-2);
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px;
+  transition: all 0.15s;
+}
+.detail-header .close-btn:hover { background: var(--surface-3); color: var(--text); }
+
+.detail-body { padding: 24px; flex: 1; }
+
+.detail-client-info {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+.detail-avatar {
+  width: 56px; height: 56px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 600; font-size: 20px; color: var(--bg);
+}
+.detail-name { font-size: 20px; font-weight: 600; }
+.detail-meta { font-size: 13px; color: var(--text-secondary); margin-top: 2px; }
+
+.detail-section {
+  margin-bottom: 24px;
+}
+.detail-section-title {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: var(--text-muted);
+  margin-bottom: 12px;
+  font-weight: 600;
+}
+
+.metric-input-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.metric-field {
+  background: var(--surface-2);
+  border-radius: var(--radius-sm);
+  padding: 12px;
+}
+.metric-field label {
+  display: block;
+  font-size: 11px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 6px;
+}
+.metric-field input, .metric-field select {
+  width: 100%;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 8px 10px;
+  color: var(--text);
+  font-size: 14px;
+  font-family: inherit;
+  outline: none;
+}
+.metric-field input:focus, .metric-field select:focus {
+  border-color: var(--accent);
+}
+.metric-field select { cursor: pointer; }
+.metric-field select option { background: var(--surface-2); }
+
+.detail-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 14px;
+}
+.detail-row:last-child { border-bottom: none; }
+.detail-row .label { color: var(--text-secondary); }
+.detail-row .value { font-weight: 500; }
+
+.detail-actions {
+  padding: 16px 24px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  gap: 10px;
+  background: var(--surface);
+  position: sticky;
+  bottom: 0;
+}
+
+.notes-area {
+  width: 100%;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 12px;
+  color: var(--text);
+  font-size: 13px;
+  font-family: inherit;
+  outline: none;
+  resize: vertical;
+  min-height: 80px;
+}
+.notes-area:focus { border-color: var(--accent); }
+
+/* Today Schedule */
+.schedule-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--border);
+}
+.schedule-item:last-child { border-bottom: none; }
+.schedule-time {
+  font-size: 13px;
+  color: var(--accent);
+  font-weight: 600;
+  min-width: 70px;
+  font-variant-numeric: tabular-nums;
+}
+.schedule-client {
+  display: flex; align-items: center; gap: 10px; flex: 1;
+}
+.schedule-avatar {
+  width: 32px; height: 32px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 600; font-size: 11px; color: var(--bg);
+}
+.schedule-name { font-size: 14px; font-weight: 500; }
+.schedule-type { font-size: 12px; color: var(--text-secondary); }
+
+/* Revenue Cards */
+.revenue-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 24px;
+}
+.revenue-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+}
+.revenue-card .rev-label { font-size: 12px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.8px; }
+.revenue-card .rev-value { font-family: 'Playfair Display', serif; font-size: 28px; margin-top: 8px; }
+.revenue-card .rev-sub { font-size: 12px; color: var(--text-secondary); margin-top: 4px; }
+
+/* Upcoming Payments */
+.payment-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border);
+}
+.payment-item:last-child { border-bottom: none; }
+.payment-client { flex: 1; }
+.payment-amount { font-weight: 600; color: var(--accent); font-size: 15px; }
+.payment-date { font-size: 12px; color: var(--text-muted); }
+.payment-status-paid { color: var(--success); font-size: 12px; font-weight: 500; }
+.payment-status-due { color: var(--warning); font-size: 12px; font-weight: 500; }
+.payment-status-overdue { color: var(--error); font-size: 12px; font-weight: 500; }
+
+/* Add Client Modal */
+.modal-overlay {
+  position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.5);
+  backdrop-filter: blur(8px);
+  z-index: 300;
+  display: none;
+  align-items: center;
+  justify-content: center;
+}
+.modal-overlay.active { display: flex; }
+.modal-box {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  width: 480px;
+  max-height: 85vh;
+  overflow-y: auto;
+  padding: 28px;
+}
+.modal-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 22px;
+  margin-bottom: 20px;
+}
+.form-group { margin-bottom: 16px; }
+.form-group label {
+  display: block; font-size: 12px; color: var(--text-secondary);
+  text-transform: uppercase; letter-spacing: 0.5px;
+  margin-bottom: 6px; font-weight: 500;
+}
+.form-group input, .form-group select, .form-group textarea {
+  width: 100%;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+  color: var(--text);
+  font-size: 14px;
+  font-family: inherit;
+  outline: none;
+}
+.form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+  border-color: var(--accent);
+}
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.modal-actions { display: flex; gap: 10px; margin-top: 24px; justify-content: flex-end; }
+
+/* Toast */
+.toast {
+  position: fixed;
+  bottom: 40px;
+  left: 50%;
+  transform: translateX(-50%) translateY(80px);
+  background: var(--surface-3);
+  color: var(--text);
+  padding: 12px 24px;
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  z-index: 400;
+  transition: transform 0.3s ease;
+  display: flex; align-items: center; gap: 8px;
+}
+.toast.show { transform: translateX(-50%) translateY(0); }
+.toast .toast-icon { font-size: 16px; }
+
+/* Responsive */
+@media (max-width: 1200px) {
+  .stats-row { grid-template-columns: repeat(2, 1fr); }
+  .revenue-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 900px) {
+  .sidebar { display: none; }
+  .main { margin-left: 0; }
+}
+
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--surface-3); border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<div class="layout">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-name">KSENIA</div>
+      <div class="brand-sub">Trainer Dashboard</div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <button class="nav-item active" data-page="dashboard" onclick="switchPage('dashboard')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+        Dashboard
+      </button>
+      <button class="nav-item" data-page="clients" onclick="switchPage('clients')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+        Clients
+        <span class="nav-badge">12</span>
+      </button>
+      <button class="nav-item" data-page="schedule" onclick="switchPage('schedule')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        Schedule
+      </button>
+      <button class="nav-item" data-page="payments" onclick="switchPage('payments')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+        Payments
+      </button>
+      <button class="nav-item" data-page="programs" onclick="switchPage('programs')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+        Programs
+      </button>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="trainer-profile">
+        <div class="trainer-avatar">K</div>
+        <div>
+          <div class="trainer-name">Ksenia</div>
+          <div class="trainer-role">Head Trainer</div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <div class="main">
+
+    <!-- DASHBOARD PAGE -->
+    <div class="admin-page active" id="page-dashboard">
+      <div class="top-bar">
+        <div class="page-title">Dashboard</div>
+        <div class="top-actions">
+          <div style="font-size: 13px; color: var(--text-secondary);">Friday, March 20, 2026</div>
+        </div>
+      </div>
+
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-label">Active Clients</div>
+          <div class="stat-value">12</div>
+          <div class="stat-change" style="color: var(--success);">+2 this month</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Sessions This Week</div>
+          <div class="stat-value">38</div>
+          <div class="stat-change" style="color: var(--text-secondary);">6 remaining</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Monthly Revenue</div>
+          <div class="stat-value">$28.8k</div>
+          <div class="stat-change" style="color: var(--success);">+$4.8k vs last month</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Avg Adherence</div>
+          <div class="stat-value">91%</div>
+          <div class="stat-change" style="color: var(--success);">+3% improvement</div>
+        </div>
+      </div>
+
+      <!-- Today's Schedule -->
+      <div class="table-container" style="margin-bottom: 24px;">
+        <div class="table-header">
+          <div class="table-title">Today's Schedule</div>
+          <button class="btn btn-sm btn-secondary" onclick="switchPage('schedule')">View Full Schedule</button>
+        </div>
+        <div style="padding: 6px 20px 10px;">
+          <div class="schedule-item">
+            <div class="schedule-time">6:00 AM</div>
+            <div class="schedule-client">
+              <div class="schedule-avatar" style="background: linear-gradient(135deg, #5e5ce6, #8884ff);">MK</div>
+              <div><div class="schedule-name">Michael K.</div><div class="schedule-type">Strength — Upper Body</div></div>
+            </div>
+            <span class="status-pill status-active"><span class="status-dot"></span> Done</span>
+          </div>
+          <div class="schedule-item">
+            <div class="schedule-time">7:30 AM</div>
+            <div class="schedule-client">
+              <div class="schedule-avatar" style="background: linear-gradient(135deg, var(--accent), var(--accent-light));">AR</div>
+              <div><div class="schedule-name">Alexandra R.</div><div class="schedule-type">HIIT & Conditioning</div></div>
+            </div>
+            <span class="status-pill status-active"><span class="status-dot"></span> Done</span>
+          </div>
+          <div class="schedule-item">
+            <div class="schedule-time">9:00 AM</div>
+            <div class="schedule-client">
+              <div class="schedule-avatar" style="background: linear-gradient(135deg, #30d158, #63e68a);">VL</div>
+              <div><div class="schedule-name">Victoria L.</div><div class="schedule-type">Pilates Fusion</div></div>
+            </div>
+            <span class="status-pill status-active"><span class="status-dot"></span> In Progress</span>
+          </div>
+          <div class="schedule-item">
+            <div class="schedule-time">11:00 AM</div>
+            <div class="schedule-client">
+              <div class="schedule-avatar" style="background: linear-gradient(135deg, #ff9f0a, #ffb940);">JW</div>
+              <div><div class="schedule-name">James W.</div><div class="schedule-type">Strength & Conditioning</div></div>
+            </div>
+            <span class="status-pill" style="background: var(--surface-3); color: var(--text-secondary);">Upcoming</span>
+          </div>
+          <div class="schedule-item">
+            <div class="schedule-time">2:00 PM</div>
+            <div class="schedule-client">
+              <div class="schedule-avatar" style="background: linear-gradient(135deg, #64d2ff, #40a8d8);">SP</div>
+              <div><div class="schedule-name">Sophia P.</div><div class="schedule-type">Virtual — Recovery</div></div>
+            </div>
+            <span class="status-pill status-virtual" style="background: rgba(100,210,255,0.12); color: var(--info);">Virtual</span>
+          </div>
+          <div class="schedule-item" style="border-bottom: none;">
+            <div class="schedule-time">4:30 PM</div>
+            <div class="schedule-client">
+              <div class="schedule-avatar" style="background: linear-gradient(135deg, #bf94e4, #d4b3ef);">NG</div>
+              <div><div class="schedule-name">Natasha G.</div><div class="schedule-type">Full Body Strength</div></div>
+            </div>
+            <span class="status-pill" style="background: var(--surface-3); color: var(--text-secondary);">Upcoming</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Clients needing attention -->
+      <div class="table-container">
+        <div class="table-header">
+          <div class="table-title">Needs Attention</div>
+        </div>
+        <div style="padding: 6px 20px 10px;">
+          <div class="schedule-item">
+            <div style="font-size: 20px; min-width: 36px; text-align: center;">⚠️</div>
+            <div style="flex: 1;">
+              <div style="font-size: 14px; font-weight: 500;">David H. — Missed 2 sessions</div>
+              <div style="font-size: 12px; color: var(--text-secondary);">Last session: March 14 — follow up recommended</div>
+            </div>
+            <button class="btn btn-sm btn-secondary">Message</button>
+          </div>
+          <div class="schedule-item">
+            <div style="font-size: 20px; min-width: 36px; text-align: center;">💳</div>
+            <div style="flex: 1;">
+              <div style="font-size: 14px; font-weight: 500;">Robert M. — Payment overdue</div>
+              <div style="font-size: 12px; color: var(--text-secondary);">$2,400 due March 15 — 5 days overdue</div>
+            </div>
+            <button class="btn btn-sm btn-secondary">Send Reminder</button>
+          </div>
+          <div class="schedule-item" style="border-bottom: none;">
+            <div style="font-size: 20px; min-width: 36px; text-align: center;">📋</div>
+            <div style="flex: 1;">
+              <div style="font-size: 14px; font-weight: 500;">Elena V. — Program expires tomorrow</div>
+              <div style="font-size: 12px; color: var(--text-secondary);">4-week mesocycle ends March 21 — new program needed</div>
+            </div>
+            <button class="btn btn-sm btn-secondary">Create Program</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CLIENTS PAGE -->
+    <div class="admin-page" id="page-clients">
+      <div class="top-bar">
+        <div class="page-title">Clients</div>
+        <div class="top-actions">
+          <div class="search-box">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="text" placeholder="Search clients..." id="client-search" oninput="filterClients()">
+          </div>
+          <button class="btn btn-primary" onclick="showAddClient()">+ Add Client</button>
+        </div>
+      </div>
+
+      <div class="table-container">
+        <div class="table-header">
+          <div class="table-title">All Clients</div>
+          <div class="table-filters">
+            <button class="filter-chip active" onclick="filterStatus(this, 'all')">All</button>
+            <button class="filter-chip" onclick="filterStatus(this, 'active')">Active</button>
+            <button class="filter-chip" onclick="filterStatus(this, 'paused')">Paused</button>
+            <button class="filter-chip" onclick="filterStatus(this, 'inactive')">Inactive</button>
+          </div>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>Client</th>
+              <th>Status</th>
+              <th>Plan</th>
+              <th>Sessions</th>
+              <th>Adherence</th>
+              <th>Weight</th>
+              <th>Next Session</th>
+              <th>Revenue</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="clients-table-body">
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- SCHEDULE PAGE -->
+    <div class="admin-page" id="page-schedule">
+      <div class="top-bar">
+        <div class="page-title">Schedule</div>
+        <div class="top-actions">
+          <button class="btn btn-secondary">← This Week →</button>
+          <button class="btn btn-primary">+ Add Session</button>
+        </div>
+      </div>
+
+      <div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 12px;">
+        <div id="schedule-mon" class="table-container" style="min-height: 300px;">
+          <div class="table-header" style="padding: 12px 14px;"><div class="table-title" style="font-size: 13px;">MON 17</div></div>
+        </div>
+        <div id="schedule-tue" class="table-container" style="min-height: 300px;">
+          <div class="table-header" style="padding: 12px 14px;"><div class="table-title" style="font-size: 13px;">TUE 18</div></div>
+        </div>
+        <div id="schedule-wed" class="table-container" style="min-height: 300px;">
+          <div class="table-header" style="padding: 12px 14px;"><div class="table-title" style="font-size: 13px;">WED 19</div></div>
+        </div>
+        <div id="schedule-thu" class="table-container" style="min-height: 300px;">
+          <div class="table-header" style="padding: 12px 14px;"><div class="table-title" style="font-size: 13px;">THU 20</div><div style="font-size: 10px; color: var(--accent);">TODAY</div></div>
+        </div>
+        <div id="schedule-fri" class="table-container" style="min-height: 300px;">
+          <div class="table-header" style="padding: 12px 14px;"><div class="table-title" style="font-size: 13px;">FRI 21</div></div>
+        </div>
+        <div id="schedule-sat" class="table-container" style="min-height: 300px;">
+          <div class="table-header" style="padding: 12px 14px;"><div class="table-title" style="font-size: 13px;">SAT 22</div></div>
+        </div>
+        <div id="schedule-sun" class="table-container" style="min-height: 300px;">
+          <div class="table-header" style="padding: 12px 14px;"><div class="table-title" style="font-size: 13px;">SUN 23</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PAYMENTS PAGE -->
+    <div class="admin-page" id="page-payments">
+      <div class="top-bar">
+        <div class="page-title">Payments</div>
+        <div class="top-actions">
+          <button class="btn btn-secondary">Export CSV</button>
+          <button class="btn btn-primary">+ Send Invoice</button>
+        </div>
+      </div>
+
+      <div class="revenue-grid">
+        <div class="revenue-card">
+          <div class="rev-label">This Month</div>
+          <div class="rev-value">$28,800</div>
+          <div class="rev-sub" style="color: var(--success);">+$4,800 vs Feb</div>
+        </div>
+        <div class="revenue-card">
+          <div class="rev-label">Outstanding</div>
+          <div class="rev-value" style="color: var(--warning);">$4,800</div>
+          <div class="rev-sub">2 invoices pending</div>
+        </div>
+        <div class="revenue-card">
+          <div class="rev-label">Year to Date</div>
+          <div class="rev-value">$72,000</div>
+          <div class="rev-sub">Avg $24k/mo</div>
+        </div>
+      </div>
+
+      <div class="table-container">
+        <div class="table-header">
+          <div class="table-title">March Invoices</div>
+          <div class="table-filters">
+            <button class="filter-chip active">All</button>
+            <button class="filter-chip">Paid</button>
+            <button class="filter-chip">Pending</button>
+            <button class="filter-chip">Overdue</button>
+          </div>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>Client</th>
+              <th>Amount</th>
+              <th>Due Date</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="payments-table-body">
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- PROGRAMS PAGE -->
+    <div class="admin-page" id="page-programs">
+      <div class="top-bar">
+        <div class="page-title">Programs</div>
+        <div class="top-actions">
+          <button class="btn btn-primary">+ New Program</button>
+        </div>
+      </div>
+
+      <div class="table-container">
+        <div class="table-header">
+          <div class="table-title">Active Programs</div>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>Client</th>
+              <th>Program</th>
+              <th>Phase</th>
+              <th>Weeks</th>
+              <th>Progress</th>
+              <th>Expires</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="programs-table-body">
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Client Detail Drawer -->
+<div class="detail-backdrop" id="detail-backdrop" onclick="closeDetail()"></div>
+<div class="detail-overlay" id="detail-panel">
+  <div class="detail-header">
+    <div style="font-size: 16px; font-weight: 600;">Client Details</div>
+    <button class="close-btn" onclick="closeDetail()">×</button>
+  </div>
+  <div class="detail-body" id="detail-body">
+    <!-- Filled dynamically -->
+  </div>
+  <div class="detail-actions">
+    <button class="btn btn-primary" style="flex:1;" onclick="saveClient()">Save Changes</button>
+    <button class="btn btn-secondary" onclick="closeDetail()">Cancel</button>
+  </div>
+</div>
+
+<!-- Add Client Modal -->
+<div class="modal-overlay" id="add-client-modal" onclick="closeAddClient(event)">
+  <div class="modal-box" onclick="event.stopPropagation()">
+    <div class="modal-title">Add New Client</div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>First Name</label>
+        <input type="text" id="new-first" placeholder="First name">
+      </div>
+      <div class="form-group">
+        <label>Last Name</label>
+        <input type="text" id="new-last" placeholder="Last name">
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Email</label>
+      <input type="email" id="new-email" placeholder="email@example.com">
+    </div>
+    <div class="form-group">
+      <label>Phone</label>
+      <input type="tel" id="new-phone" placeholder="+1 (555) 000-0000">
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Plan</label>
+        <select id="new-plan">
+          <option>Elite — 20 sessions</option>
+          <option>Premium — 12 sessions</option>
+          <option>Standard — 8 sessions</option>
+          <option>Virtual Only — Unlimited</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Monthly Rate</label>
+        <input type="text" id="new-rate" placeholder="$2,400">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Starting Weight (lbs)</label>
+        <input type="number" id="new-weight" placeholder="135">
+      </div>
+      <div class="form-group">
+        <label>Goal</label>
+        <select id="new-goal">
+          <option>Body Recomposition</option>
+          <option>Weight Loss</option>
+          <option>Muscle Gain</option>
+          <option>Athletic Performance</option>
+          <option>General Fitness</option>
+          <option>Injury Rehab</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Notes</label>
+      <textarea rows="3" placeholder="Medical history, preferences, etc." style="background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 10px 14px; color: var(--text); font-size: 14px; font-family: inherit; outline: none; resize: vertical; width: 100%;"></textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="document.getElementById('add-client-modal').classList.remove('active')">Cancel</button>
+      <button class="btn btn-primary" onclick="addNewClient()">Add Client</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"><span class="toast-icon">✓</span> <span id="toast-msg">Saved successfully</span></div>
+
+<script>
+// Client Data
+const clients = [
+  { id: 1, first: "Alexandra", last: "Reynolds", email: "alexandra.r@gmail.com", phone: "+1 (917) 555-0142", status: "active", plan: "Elite — 20 sessions", rate: 2400, sessions: "18/20", adherence: 92, weight: 138, weightChange: -2.4, bodyFat: 19.2, bfChange: -0.8, goal: "Body Recomposition", nextSession: "Mar 21", color: "#c9a96e", notes: "Prefers morning sessions. Allergic to shellfish. Training for Hamptons triathlon." },
+  { id: 2, first: "Michael", last: "Kessler", email: "m.kessler@outlook.com", phone: "+1 (646) 555-0198", status: "active", plan: "Elite — 20 sessions", rate: 2400, sessions: "16/20", adherence: 88, weight: 195, weightChange: -3.1, bodyFat: 16.8, bfChange: -1.2, goal: "Muscle Gain", nextSession: "Mar 20", color: "#5e5ce6", notes: "Former D1 athlete. Focus on compound lifts. Shoulder impingement history — avoid overhead press." },
+  { id: 3, first: "Victoria", last: "Liu", email: "victoria.liu@icloud.com", phone: "+1 (212) 555-0267", status: "active", plan: "Premium — 12 sessions", rate: 1800, sessions: "10/12", adherence: 95, weight: 125, weightChange: -1.8, bodyFat: 21.5, bfChange: -0.5, goal: "General Fitness", nextSession: "Mar 20", color: "#30d158", notes: "Postpartum training (6 months). Cleared by OB. Diastasis recti rehab protocol." },
+  { id: 4, first: "James", last: "Worthington", email: "james.w@gmail.com", phone: "+1 (917) 555-0333", status: "active", plan: "Elite — 20 sessions", rate: 2400, sessions: "19/20", adherence: 96, weight: 210, weightChange: +1.2, bodyFat: 14.2, bfChange: -0.3, goal: "Athletic Performance", nextSession: "Mar 20", color: "#ff9f0a", notes: "CEO, tight schedule. Prefers lunch sessions. Marathon runner — protect knees." },
+  { id: 5, first: "Sophia", last: "Petrov", email: "sophia.p@gmail.com", phone: "+1 (347) 555-0401", status: "active", plan: "Premium — 12 sessions", rate: 1800, sessions: "11/12", adherence: 94, weight: 130, weightChange: -1.5, bodyFat: 20.1, bfChange: -0.6, goal: "Body Recomposition", nextSession: "Mar 20", color: "#64d2ff", notes: "Travels frequently — needs virtual session flexibility. Vegetarian." },
+  { id: 6, first: "Natasha", last: "Grant", email: "natasha.g@yahoo.com", phone: "+1 (646) 555-0512", status: "active", plan: "Elite — 20 sessions", rate: 2400, sessions: "17/20", adherence: 90, weight: 145, weightChange: -2.0, bodyFat: 22.3, bfChange: -0.9, goal: "Weight Loss", nextSession: "Mar 20", color: "#bf94e4", notes: "Wedding in June — aggressive timeline. Responds well to HIIT. Gluten-free." },
+  { id: 7, first: "David", last: "Harrison", email: "david.h@gmail.com", phone: "+1 (917) 555-0688", status: "paused", plan: "Premium — 12 sessions", rate: 1800, sessions: "6/12", adherence: 58, weight: 185, weightChange: +0.5, bodyFat: 24.1, bfChange: +0.3, goal: "Weight Loss", nextSession: "—", color: "#ff453a", notes: "Paused due to travel. Missed 2 sessions before pause. Follow up March 22." },
+  { id: 8, first: "Elena", last: "Vasquez", email: "elena.v@icloud.com", phone: "+1 (212) 555-0755", status: "active", plan: "Standard — 8 sessions", rate: 1200, sessions: "7/8", adherence: 89, weight: 118, weightChange: -1.0, bodyFat: 18.5, bfChange: -0.4, goal: "General Fitness", nextSession: "Mar 22", color: "#ff6482", notes: "Yoga background. Wants to build strength. Program expires March 21 — renew." },
+  { id: 9, first: "Robert", last: "Mitchell", email: "robert.m@gmail.com", phone: "+1 (347) 555-0823", status: "active", plan: "Elite — 20 sessions", rate: 2400, sessions: "15/20", adherence: 82, weight: 225, weightChange: -4.2, bodyFat: 26.3, bfChange: -1.5, goal: "Weight Loss", nextSession: "Mar 21", color: "#ff9500", notes: "Payment overdue. Type 2 pre-diabetic — monitor blood sugar. Great progress on nutrition." },
+  { id: 10, first: "Caroline", last: "Beaumont", email: "caroline.b@outlook.com", phone: "+1 (646) 555-0901", status: "active", plan: "Premium — 12 sessions", rate: 1800, sessions: "12/12", adherence: 100, weight: 132, weightChange: -1.2, bodyFat: 17.8, bfChange: -0.7, goal: "Athletic Performance", nextSession: "Mar 23", color: "#00c7be", notes: "Iron distance triathlete. Periodization around race calendar. Recovery focus this block." },
+  { id: 11, first: "Thomas", last: "Chen", email: "thomas.c@gmail.com", phone: "+1 (917) 555-1045", status: "active", plan: "Standard — 8 sessions", rate: 1200, sessions: "5/8", adherence: 78, weight: 170, weightChange: -0.8, bodyFat: 20.5, bfChange: -0.2, goal: "General Fitness", nextSession: "Mar 24", color: "#5ac8fa", notes: "New client — started March 1. Sedentary desk job. Building base fitness." },
+  { id: 12, first: "Isabelle", last: "Fox", email: "isabelle.f@icloud.com", phone: "+1 (212) 555-1122", status: "inactive", plan: "Virtual Only", rate: 800, sessions: "0/0", adherence: 0, weight: 140, weightChange: 0, bodyFat: 23.0, bfChange: 0, goal: "General Fitness", nextSession: "—", color: "#8e8e93", notes: "Inquired March 10. Interested in virtual-only. Awaiting onboarding call." },
+];
+
+// Render Clients Table
+function renderClients(filter = 'all', search = '') {
+  const tbody = document.getElementById('clients-table-body');
+  const filtered = clients.filter(c => {
+    const matchStatus = filter === 'all' || c.status === filter;
+    const matchSearch = search === '' ||
+      (c.first + ' ' + c.last).toLowerCase().includes(search.toLowerCase()) ||
+      c.email.toLowerCase().includes(search.toLowerCase());
+    return matchStatus && matchSearch;
+  });
+
+  tbody.innerHTML = filtered.map(c => {
+    const initials = c.first[0] + c.last[0];
+    const statusClass = 'status-' + c.status;
+    const adherenceColor = c.adherence >= 90 ? 'var(--success)' : c.adherence >= 75 ? 'var(--warning)' : 'var(--error)';
+    const weightDir = c.weightChange < 0 ? '↓' : c.weightChange > 0 ? '↑' : '—';
+    const weightColor = (c.goal === 'Muscle Gain' && c.weightChange > 0) || (c.goal !== 'Muscle Gain' && c.weightChange < 0) ? 'var(--success)' : c.weightChange === 0 ? 'var(--text-secondary)' : 'var(--warning)';
+
+    return `<tr data-id="${c.id}" onclick="openDetail(${c.id})">
+      <td>
+        <div class="client-cell">
+          <div class="client-avatar" style="background: linear-gradient(135deg, ${c.color}, ${c.color}dd);">${initials}</div>
+          <div><div class="name">${c.first} ${c.last}</div><div class="email">${c.email}</div></div>
+        </div>
+      </td>
+      <td><span class="status-pill ${statusClass}"><span class="status-dot"></span> ${c.status.charAt(0).toUpperCase() + c.status.slice(1)}</span></td>
+      <td style="font-size: 13px; color: var(--text-secondary);">${c.plan}</td>
+      <td style="font-size: 14px; font-weight: 500;">${c.sessions}</td>
+      <td>
+        <div class="metric-bar">
+          <div class="metric-bar-track"><div class="metric-bar-fill" style="width: ${c.adherence}%; background: ${adherenceColor};"></div></div>
+          <div class="metric-bar-label">${c.adherence}%</div>
+        </div>
+      </td>
+      <td>
+        <div style="font-size: 14px; font-weight: 500;">${c.weight} lbs</div>
+        <div style="font-size: 12px; color: ${weightColor};">${weightDir} ${Math.abs(c.weightChange)} lbs</div>
+      </td>
+      <td style="font-size: 13px;">${c.nextSession}</td>
+      <td style="font-size: 14px; font-weight: 500; color: var(--accent);">$${c.rate.toLocaleString()}</td>
+      <td><button class="btn-icon" onclick="event.stopPropagation(); openDetail(${c.id})"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg></button></td>
+    </tr>`;
+  }).join('');
+}
+
+// Client Detail Panel
+function openDetail(id) {
+  const c = clients.find(cl => cl.id === id);
+  if (!c) return;
+  const initials = c.first[0] + c.last[0];
+
+  document.getElementById('detail-body').innerHTML = `
+    <div class="detail-client-info">
+      <div class="detail-avatar" style="background: linear-gradient(135deg, ${c.color}, ${c.color}dd);">${initials}</div>
+      <div>
+        <div class="detail-name">${c.first} ${c.last}</div>
+        <div class="detail-meta">${c.email} · ${c.phone}</div>
+      </div>
+    </div>
+
+    <div class="detail-section">
+      <div class="detail-section-title">Status & Plan</div>
+      <div class="metric-input-grid">
+        <div class="metric-field">
+          <label>Status</label>
+          <select data-field="status">
+            <option ${c.status==='active'?'selected':''}>active</option>
+            <option ${c.status==='paused'?'selected':''}>paused</option>
+            <option ${c.status==='inactive'?'selected':''}>inactive</option>
+          </select>
+        </div>
+        <div class="metric-field">
+          <label>Plan</label>
+          <select data-field="plan">
+            <option ${c.plan.includes('Elite')?'selected':''}>Elite — 20 sessions</option>
+            <option ${c.plan.includes('Premium')?'selected':''}>Premium — 12 sessions</option>
+            <option ${c.plan.includes('Standard')?'selected':''}>Standard — 8 sessions</option>
+            <option ${c.plan.includes('Virtual')?'selected':''}>Virtual Only — Unlimited</option>
+          </select>
+        </div>
+        <div class="metric-field">
+          <label>Monthly Rate ($)</label>
+          <input type="number" value="${c.rate}" data-field="rate">
+        </div>
+        <div class="metric-field">
+          <label>Goal</label>
+          <select data-field="goal">
+            <option ${c.goal==='Body Recomposition'?'selected':''}>Body Recomposition</option>
+            <option ${c.goal==='Weight Loss'?'selected':''}>Weight Loss</option>
+            <option ${c.goal==='Muscle Gain'?'selected':''}>Muscle Gain</option>
+            <option ${c.goal==='Athletic Performance'?'selected':''}>Athletic Performance</option>
+            <option ${c.goal==='General Fitness'?'selected':''}>General Fitness</option>
+            <option ${c.goal==='Injury Rehab'?'selected':''}>Injury Rehab</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="detail-section">
+      <div class="detail-section-title">Body Metrics</div>
+      <div class="metric-input-grid">
+        <div class="metric-field">
+          <label>Weight (lbs)</label>
+          <input type="number" value="${c.weight}" step="0.1" data-field="weight">
+        </div>
+        <div class="metric-field">
+          <label>Body Fat %</label>
+          <input type="number" value="${c.bodyFat}" step="0.1" data-field="bodyFat">
+        </div>
+        <div class="metric-field">
+          <label>Weight Change</label>
+          <input type="number" value="${c.weightChange}" step="0.1" data-field="weightChange">
+        </div>
+        <div class="metric-field">
+          <label>BF% Change</label>
+          <input type="number" value="${c.bfChange}" step="0.1" data-field="bfChange">
+        </div>
+      </div>
+    </div>
+
+    <div class="detail-section">
+      <div class="detail-section-title">Performance</div>
+      <div class="metric-input-grid">
+        <div class="metric-field">
+          <label>Sessions Used</label>
+          <input type="text" value="${c.sessions}" data-field="sessions">
+        </div>
+        <div class="metric-field">
+          <label>Adherence %</label>
+          <input type="number" value="${c.adherence}" data-field="adherence">
+        </div>
+      </div>
+    </div>
+
+    <div class="detail-section">
+      <div class="detail-section-title">Trainer Notes</div>
+      <textarea class="notes-area" data-field="notes">${c.notes}</textarea>
+    </div>
+
+    <div class="detail-section">
+      <div class="detail-section-title">Quick Actions</div>
+      <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+        <button class="btn btn-sm btn-secondary">📋 View Program</button>
+        <button class="btn btn-sm btn-secondary">📅 Schedule Session</button>
+        <button class="btn btn-sm btn-secondary">💳 Send Invoice</button>
+        <button class="btn btn-sm btn-secondary">💬 Send Message</button>
+        <button class="btn btn-sm btn-secondary">📸 View Progress Photos</button>
+      </div>
+    </div>
+  `;
+
+  document.getElementById('detail-panel').dataset.clientId = id;
+  document.getElementById('detail-panel').classList.add('open');
+  document.getElementById('detail-backdrop').classList.add('open');
+}
+
+function closeDetail() {
+  document.getElementById('detail-panel').classList.remove('open');
+  document.getElementById('detail-backdrop').classList.remove('open');
+}
+
+function saveClient() {
+  const panel = document.getElementById('detail-body');
+  const id = parseInt(document.getElementById('detail-panel').dataset.clientId);
+  const c = clients.find(cl => cl.id === id);
+  if (!c) return;
+
+  panel.querySelectorAll('[data-field]').forEach(el => {
+    const field = el.dataset.field;
+    const val = el.value;
+    if (['rate', 'weight', 'bodyFat', 'weightChange', 'bfChange', 'adherence'].includes(field)) {
+      c[field] = parseFloat(val) || 0;
+    } else {
+      c[field] = val;
+    }
+  });
+
+  closeDetail();
+  renderClients();
+  renderPayments();
+  renderPrograms();
+  showToast('Client updated successfully');
+}
+
+// Filter
+let currentFilter = 'all';
+function filterStatus(el, status) {
+  document.querySelectorAll('.filter-chip').forEach(f => f.classList.remove('active'));
+  el.classList.add('active');
+  currentFilter = status;
+  renderClients(status, document.getElementById('client-search')?.value || '');
+}
+
+function filterClients() {
+  const search = document.getElementById('client-search').value;
+  renderClients(currentFilter, search);
+}
+
+// Add Client
+function showAddClient() {
+  document.getElementById('add-client-modal').classList.add('active');
+}
+function closeAddClient(e) {
+  if (e.target === e.currentTarget) {
+    document.getElementById('add-client-modal').classList.remove('active');
+  }
+}
+function addNewClient() {
+  const first = document.getElementById('new-first').value || 'New';
+  const last = document.getElementById('new-last').value || 'Client';
+  const email = document.getElementById('new-email').value || '';
+  const phone = document.getElementById('new-phone').value || '';
+  const plan = document.getElementById('new-plan').value;
+  const rate = parseInt(document.getElementById('new-rate').value?.replace(/\D/g,'')) || 2400;
+  const weight = parseFloat(document.getElementById('new-weight').value) || 0;
+  const goal = document.getElementById('new-goal').value;
+
+  const colors = ['#5e5ce6','#30d158','#ff9f0a','#64d2ff','#bf94e4','#ff6482','#00c7be','#5ac8fa'];
+  clients.push({
+    id: clients.length + 1,
+    first, last, email, phone,
+    status: 'active', plan, rate,
+    sessions: '0/' + (plan.includes('20') ? '20' : plan.includes('12') ? '12' : '8'),
+    adherence: 0, weight, weightChange: 0,
+    bodyFat: 0, bfChange: 0, goal,
+    nextSession: '—',
+    color: colors[Math.floor(Math.random() * colors.length)],
+    notes: ''
+  });
+
+  document.getElementById('add-client-modal').classList.remove('active');
+  renderClients();
+  showToast(`${first} ${last} added`);
+
+  // Update client count badge
+  const badge = document.querySelector('.nav-badge');
+  if (badge) badge.textContent = clients.filter(c => c.status !== 'inactive').length;
+}
+
+// Payments
+function renderPayments() {
+  const tbody = document.getElementById('payments-table-body');
+  if (!tbody) return;
+  const paymentData = clients.filter(c => c.status !== 'inactive').map(c => {
+    let status, statusClass;
+    if (c.first === 'Robert') { status = 'Overdue'; statusClass = 'payment-status-overdue'; }
+    else if (c.first === 'David') { status = 'Pending'; statusClass = 'payment-status-due'; }
+    else { status = 'Paid'; statusClass = 'payment-status-paid'; }
+    return { ...c, payStatus: status, payClass: statusClass };
+  });
+
+  tbody.innerHTML = paymentData.map(c => {
+    const initials = c.first[0] + c.last[0];
+    return `<tr>
+      <td><div class="client-cell"><div class="client-avatar" style="background: linear-gradient(135deg, ${c.color}, ${c.color}dd);">${initials}</div><div><div class="name">${c.first} ${c.last}</div></div></div></td>
+      <td style="font-weight: 600;">$${c.rate.toLocaleString()}</td>
+      <td style="font-size: 13px;">Mar 1, 2026</td>
+      <td><span class="${c.payClass}">${c.payStatus}</span></td>
+      <td><button class="btn btn-sm btn-secondary">${c.payStatus === 'Paid' ? 'Receipt' : 'Send Reminder'}</button></td>
+    </tr>`;
+  }).join('');
+}
+
+// Programs
+function renderPrograms() {
+  const tbody = document.getElementById('programs-table-body');
+  if (!tbody) return;
+  const programs = [
+    { client: clients[0], name: "Strength Hypertrophy", phase: "Accumulation", weeks: "3/4", progress: 75, expires: "Mar 28" },
+    { client: clients[1], name: "Power Building", phase: "Intensification", weeks: "2/4", progress: 50, expires: "Apr 4" },
+    { client: clients[2], name: "Postpartum Recovery", phase: "Foundation", weeks: "4/6", progress: 67, expires: "Apr 1" },
+    { client: clients[3], name: "Marathon Prep S&C", phase: "Base", weeks: "1/4", progress: 25, expires: "Apr 11" },
+    { client: clients[4], name: "Body Recomp", phase: "Cut", weeks: "3/4", progress: 75, expires: "Mar 25" },
+    { client: clients[5], name: "Wedding Shred", phase: "Peak", weeks: "4/4", progress: 100, expires: "Mar 21" },
+    { client: clients[7], name: "Strength Foundations", phase: "GPP", weeks: "3/4", progress: 75, expires: "Mar 21" },
+    { client: clients[8], name: "Metabolic Reset", phase: "Base", weeks: "2/6", progress: 33, expires: "Apr 18" },
+    { client: clients[9], name: "Triathlon Periodization", phase: "Recovery", weeks: "2/2", progress: 100, expires: "Mar 24" },
+    { client: clients[10], name: "Beginner Strength", phase: "Foundation", weeks: "3/8", progress: 38, expires: "May 1" },
+  ];
+
+  tbody.innerHTML = programs.map(p => {
+    const initials = p.client.first[0] + p.client.last[0];
+    const barColor = p.progress >= 75 ? 'var(--success)' : p.progress >= 50 ? 'var(--warning)' : 'var(--accent)';
+    const expiring = p.expires === 'Mar 21' ? ' style="color: var(--error); font-weight: 500;"' : '';
+    return `<tr onclick="openDetail(${p.client.id})">
+      <td><div class="client-cell"><div class="client-avatar" style="background: linear-gradient(135deg, ${p.client.color}, ${p.client.color}dd);">${initials}</div><div><div class="name">${p.client.first} ${p.client.last}</div></div></div></td>
+      <td style="font-weight: 500;">${p.name}</td>
+      <td style="font-size: 13px; color: var(--text-secondary);">${p.phase}</td>
+      <td style="font-size: 14px;">${p.weeks}</td>
+      <td><div class="metric-bar"><div class="metric-bar-track"><div class="metric-bar-fill" style="width: ${p.progress}%; background: ${barColor};"></div></div><div class="metric-bar-label">${p.progress}%</div></div></td>
+      <td${expiring}>${p.expires}</td>
+      <td><button class="btn btn-sm btn-secondary" onclick="event.stopPropagation()">Edit</button></td>
+    </tr>`;
+  }).join('');
+}
+
+// Weekly Schedule
+function renderSchedule() {
+  const schedule = {
+    mon: [
+      { time: "6:00", name: "Michael K.", type: "Upper Body", color: "#5e5ce6" },
+      { time: "7:30", name: "Alexandra R.", type: "S&C", color: "#c9a96e" },
+      { time: "9:00", name: "Victoria L.", type: "Pilates", color: "#30d158" },
+      { time: "11:00", name: "James W.", type: "S&C", color: "#ff9f0a" },
+      { time: "4:30", name: "Natasha G.", type: "HIIT", color: "#bf94e4" },
+    ],
+    tue: [
+      { time: "6:00", name: "Robert M.", type: "Strength", color: "#ff9500" },
+      { time: "7:30", name: "Caroline B.", type: "Tri S&C", color: "#00c7be" },
+      { time: "9:00", name: "Elena V.", type: "Strength", color: "#ff6482" },
+      { time: "2:00", name: "Sophia P.", type: "Virtual", color: "#64d2ff" },
+    ],
+    wed: [
+      { time: "6:00", name: "Michael K.", type: "Lower Body", color: "#5e5ce6" },
+      { time: "7:30", name: "Alexandra R.", type: "HIIT", color: "#c9a96e" },
+      { time: "9:00", name: "Thomas C.", type: "Foundation", color: "#5ac8fa" },
+      { time: "11:00", name: "James W.", type: "Conditioning", color: "#ff9f0a" },
+      { time: "4:30", name: "Natasha G.", type: "Strength", color: "#bf94e4" },
+    ],
+    thu: [
+      { time: "6:00", name: "Michael K.", type: "Upper", color: "#5e5ce6" },
+      { time: "7:30", name: "Alexandra R.", type: "HIIT", color: "#c9a96e" },
+      { time: "9:00", name: "Victoria L.", type: "Pilates", color: "#30d158" },
+      { time: "11:00", name: "James W.", type: "S&C", color: "#ff9f0a" },
+      { time: "2:00", name: "Sophia P.", type: "Virtual", color: "#64d2ff" },
+      { time: "4:30", name: "Natasha G.", type: "Full Body", color: "#bf94e4" },
+    ],
+    fri: [
+      { time: "7:00", name: "Alexandra R.", type: "S&C", color: "#c9a96e" },
+      { time: "9:00", name: "Robert M.", type: "Cardio", color: "#ff9500" },
+      { time: "11:00", name: "Caroline B.", type: "Recovery", color: "#00c7be" },
+      { time: "2:00", name: "Thomas C.", type: "Strength", color: "#5ac8fa" },
+    ],
+    sat: [
+      { time: "8:00", name: "James W.", type: "Long Run S&C", color: "#ff9f0a" },
+      { time: "9:30", name: "Elena V.", type: "Mobility", color: "#ff6482" },
+    ],
+    sun: []
+  };
+
+  Object.keys(schedule).forEach(day => {
+    const el = document.getElementById('schedule-' + day);
+    if (!el) return;
+    const items = schedule[day];
+    let html = el.querySelector('.table-header').outerHTML;
+    if (items.length === 0) {
+      html += '<div style="padding: 20px 14px; text-align: center; font-size: 12px; color: var(--text-muted);">Rest Day</div>';
+    } else {
+      items.forEach(s => {
+        html += `<div style="padding: 8px 12px; border-top: 1px solid var(--border); display: flex; align-items: center; gap: 8px;">
+          <div style="width: 4px; height: 32px; border-radius: 2px; background: ${s.color};"></div>
+          <div>
+            <div style="font-size: 11px; color: var(--accent); font-weight: 600;">${s.time}</div>
+            <div style="font-size: 12px; font-weight: 500;">${s.name}</div>
+            <div style="font-size: 11px; color: var(--text-muted);">${s.type}</div>
+          </div>
+        </div>`;
+      });
+    }
+    el.innerHTML = html;
+  });
+}
+
+// Page Navigation
+function switchPage(page) {
+  document.querySelectorAll('.admin-page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-' + page).classList.add('active');
+  document.querySelector(`[data-page="${page}"]`).classList.add('active');
+
+  // Update page title
+  const titles = { dashboard: 'Dashboard', clients: 'Clients', schedule: 'Schedule', payments: 'Payments', programs: 'Programs' };
+}
+
+// Toast
+function showToast(msg) {
+  const toast = document.getElementById('toast');
+  document.getElementById('toast-msg').textContent = msg;
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 2500);
+}
+
+// Init
+renderClients();
+renderPayments();
+renderPrograms();
+renderSchedule();
+</script>
+</body>
+</html>
