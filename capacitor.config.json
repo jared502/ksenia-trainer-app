@@ -1,0 +1,9 @@
+{
+  "appId": "com.ksania.training",
+  "appName": "KSANIA",
+  "webDir": "www",
+  "ios": {
+    "contentInset": "automatic",
+    "backgroundColor": "#0a0a0a"
+  }
+}
