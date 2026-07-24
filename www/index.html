@@ -1,0 +1,1375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>KSANIA — Private Training</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --bg: #0a0a0a;
+  --surface: #141414;
+  --surface-2: #1c1c1e;
+  --surface-3: #2c2c2e;
+  --accent: #c9a96e;
+  --accent-light: #dfc292;
+  --accent-dim: rgba(201, 169, 110, 0.15);
+  --text: #f5f5f5;
+  --text-secondary: #8e8e93;
+  --text-muted: #636366;
+  --success: #30d158;
+  --warning: #ff9f0a;
+  --error: #ff453a;
+  --border: rgba(255,255,255,0.06);
+  --radius: 16px;
+  --radius-sm: 10px;
+  --safe-bottom: env(safe-area-inset-bottom, 20px);
+}
+
+html { font-size: 16px; }
+body {
+  font-family: 'Inter', -apple-system, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100dvh;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Mobile Frame */
+.app-frame {
+  max-width: 430px;
+  margin: 0 auto;
+  min-height: 100dvh;
+  position: relative;
+  background: var(--bg);
+}
+
+/* Header */
+.app-header {
+  padding: 16px 20px 12px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(10,10,10,0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+}
+
+.header-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.greeting { font-size: 13px; color: var(--text-secondary); font-weight: 400; letter-spacing: 0.5px; text-transform: uppercase; }
+.client-name { font-family: 'Playfair Display', serif; font-size: 26px; font-weight: 500; letter-spacing: -0.3px; }
+
+.header-avatar {
+  width: 42px; height: 42px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent), var(--accent-light));
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 600; font-size: 15px; color: var(--bg);
+  cursor: pointer; position: relative;
+}
+.header-avatar .notification-dot {
+  width: 10px; height: 10px; background: var(--error);
+  border-radius: 50%; position: absolute; top: 0; right: 0;
+  border: 2px solid var(--bg);
+}
+
+/* Content */
+.app-content {
+  padding: 0 20px 120px;
+  overflow-y: auto;
+}
+
+/* Section Headers */
+.section-header {
+  display: flex; justify-content: space-between; align-items: baseline;
+  margin: 28px 0 14px;
+}
+.section-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 20px; font-weight: 500;
+}
+.section-link {
+  font-size: 13px; color: var(--accent);
+  cursor: pointer; font-weight: 500;
+  text-decoration: none;
+  transition: opacity 0.2s;
+}
+.section-link:hover { opacity: 0.7; }
+
+/* Cards */
+.card {
+  background: var(--surface);
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  padding: 18px;
+  margin-bottom: 12px;
+  transition: transform 0.2s, border-color 0.2s;
+  cursor: pointer;
+}
+.card:hover { border-color: rgba(255,255,255,0.1); }
+.card:active { transform: scale(0.985); }
+
+/* Next Session Card — Featured */
+.next-session {
+  background: linear-gradient(135deg, #1a1a1a 0%, #1f1a14 100%);
+  border: 1px solid rgba(201,169,110,0.2);
+  padding: 22px;
+  position: relative;
+  overflow: hidden;
+}
+.next-session::before {
+  content: ''; position: absolute; top: -50%; right: -30%;
+  width: 200px; height: 200px;
+  background: radial-gradient(circle, rgba(201,169,110,0.08) 0%, transparent 70%);
+  border-radius: 50%;
+}
+.session-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: var(--accent-dim); color: var(--accent);
+  font-size: 11px; font-weight: 600; text-transform: uppercase;
+  letter-spacing: 1px; padding: 5px 10px; border-radius: 6px;
+  margin-bottom: 14px;
+}
+.session-badge .dot { width: 6px; height: 6px; background: var(--accent); border-radius: 50%; animation: pulse 2s infinite; }
+@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+
+.session-type { font-size: 18px; font-weight: 600; margin-bottom: 4px; }
+.session-detail { font-size: 14px; color: var(--text-secondary); display: flex; align-items: center; gap: 6px; margin-top: 6px; }
+.session-detail svg { width: 16px; height: 16px; opacity: 0.6; }
+
+.session-actions { display: flex; gap: 10px; margin-top: 18px; }
+.btn {
+  padding: 11px 20px; border-radius: var(--radius-sm);
+  font-size: 14px; font-weight: 500; border: none;
+  cursor: pointer; transition: all 0.2s; font-family: 'Inter', sans-serif;
+  display: inline-flex; align-items: center; gap: 8px;
+}
+.btn-primary { background: var(--accent); color: var(--bg); flex: 1; justify-content: center; }
+.btn-primary:hover { background: var(--accent-light); }
+.btn-secondary { background: var(--surface-3); color: var(--text); }
+.btn-secondary:hover { background: #3a3a3c; }
+
+/* Upcoming Sessions List */
+.session-item {
+  display: flex; align-items: center; gap: 14px;
+  padding: 16px 18px;
+}
+.session-date-block {
+  min-width: 48px; text-align: center;
+  background: var(--surface-2); border-radius: var(--radius-sm);
+  padding: 8px 6px;
+}
+.session-date-block .day { font-size: 20px; font-weight: 600; line-height: 1; }
+.session-date-block .month { font-size: 10px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 1px; margin-top: 2px; }
+.session-info { flex: 1; }
+.session-info .title { font-size: 15px; font-weight: 500; }
+.session-info .time { font-size: 13px; color: var(--text-secondary); margin-top: 2px; }
+.session-status {
+  font-size: 11px; padding: 4px 10px; border-radius: 20px;
+  font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px;
+}
+.status-confirmed { background: rgba(48,209,88,0.12); color: var(--success); }
+.status-pending { background: rgba(255,159,10,0.12); color: var(--warning); }
+.status-virtual { background: rgba(201,169,110,0.12); color: var(--accent); }
+
+/* Quick Actions Grid */
+.quick-actions {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 12px; margin-bottom: 12px;
+}
+.action-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px 16px;
+  cursor: pointer; transition: all 0.2s;
+  text-align: left;
+}
+.action-card:hover { border-color: rgba(255,255,255,0.1); }
+.action-card:active { transform: scale(0.97); }
+.action-icon {
+  width: 44px; height: 44px; border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 12px; font-size: 22px;
+}
+.action-card .action-title { font-size: 14px; font-weight: 600; margin-bottom: 3px; }
+.action-card .action-desc { font-size: 12px; color: var(--text-secondary); line-height: 1.4; }
+
+.icon-meal { background: rgba(255,159,10,0.12); }
+.icon-program { background: rgba(48,209,88,0.12); }
+.icon-virtual { background: rgba(94,92,230,0.12); }
+.icon-scan { background: rgba(0,199,190,0.12); }
+.icon-progress { background: rgba(255,69,58,0.12); }
+.icon-message { background: rgba(201,169,110,0.12); }
+.icon-recovery { background: rgba(100,210,255,0.12); }
+.icon-payment { background: rgba(191,148,228,0.12); }
+
+/* Meal Plan Card */
+.meal-plan-card {
+  padding: 0;
+  overflow: hidden;
+}
+.meal-plan-header {
+  padding: 18px;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.meal-plan-header .day-label { font-weight: 600; font-size: 15px; }
+.meal-plan-header .cal-label { font-size: 13px; color: var(--accent); }
+.meal-items { border-top: 1px solid var(--border); }
+.meal-item {
+  display: flex; align-items: center; gap: 12px;
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--border);
+}
+.meal-item:last-child { border-bottom: none; }
+.meal-time {
+  font-size: 11px; color: var(--text-muted);
+  text-transform: uppercase; letter-spacing: 0.5px;
+  min-width: 70px;
+}
+.meal-name { font-size: 14px; font-weight: 500; flex: 1; }
+.meal-macros { font-size: 12px; color: var(--text-secondary); }
+.meal-check {
+  width: 22px; height: 22px; border-radius: 50%;
+  border: 2px solid var(--surface-3); display: flex;
+  align-items: center; justify-content: center;
+  cursor: pointer; transition: all 0.2s;
+}
+.meal-check.checked { background: var(--success); border-color: var(--success); }
+.meal-check.checked svg { display: block; }
+.meal-check svg { display: none; width: 12px; height: 12px; color: #fff; }
+
+/* Progress Ring */
+.progress-section {
+  display: flex; gap: 12px; margin-bottom: 12px;
+}
+.progress-card {
+  flex: 1; background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 18px; text-align: center;
+}
+.progress-card .label { font-size: 11px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 8px; }
+.progress-card .value { font-size: 26px; font-weight: 600; font-family: 'Playfair Display', serif; }
+.progress-card .unit { font-size: 12px; color: var(--text-muted); }
+.progress-card .change { font-size: 12px; margin-top: 4px; }
+.change-positive { color: var(--success); }
+.change-neutral { color: var(--text-secondary); }
+
+/* Bottom Tab Bar */
+.tab-bar {
+  position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
+  width: 100%; max-width: 430px;
+  background: rgba(20,20,20,0.92);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-top: 1px solid var(--border);
+  display: flex; justify-content: space-around;
+  padding: 8px 0 calc(8px + var(--safe-bottom));
+  z-index: 200;
+}
+.tab-item {
+  display: flex; flex-direction: column; align-items: center;
+  gap: 3px; padding: 6px 12px;
+  cursor: pointer; transition: all 0.2s;
+  -webkit-tap-highlight-color: transparent;
+  background: none; border: none; color: var(--text-muted);
+  font-family: 'Inter', sans-serif;
+}
+.tab-item.active { color: var(--accent); }
+.tab-item svg { width: 24px; height: 24px; }
+.tab-item span { font-size: 10px; font-weight: 500; letter-spacing: 0.3px; }
+
+/* Modals */
+.modal-overlay {
+  position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.6);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: 300; display: none;
+  align-items: flex-end; justify-content: center;
+}
+.modal-overlay.active { display: flex; }
+.modal-sheet {
+  background: var(--surface);
+  border-radius: 20px 20px 0 0;
+  width: 100%; max-width: 430px;
+  max-height: 85vh; overflow-y: auto;
+  padding: 12px 20px calc(20px + var(--safe-bottom));
+  animation: slideUp 0.3s ease;
+}
+@keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+.modal-handle {
+  width: 36px; height: 5px; background: var(--surface-3);
+  border-radius: 3px; margin: 0 auto 20px;
+}
+.modal-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 22px; font-weight: 500; margin-bottom: 20px;
+}
+
+/* Meal Scanner */
+.scanner-area {
+  background: var(--surface-2);
+  border: 2px dashed var(--surface-3);
+  border-radius: var(--radius);
+  padding: 40px 20px; text-align: center;
+  cursor: pointer; transition: all 0.3s;
+  margin-bottom: 16px;
+}
+.scanner-area:hover { border-color: var(--accent); }
+.scanner-area .icon { font-size: 48px; margin-bottom: 12px; }
+.scanner-area .label { font-size: 14px; color: var(--text-secondary); }
+.scanner-area .sublabel { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+
+.analysis-result {
+  display: none; background: var(--surface-2);
+  border-radius: var(--radius); padding: 20px;
+  margin-top: 16px;
+}
+.analysis-result.visible { display: block; animation: fadeIn 0.4s ease; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+.analysis-score {
+  display: flex; align-items: center; gap: 12px;
+  margin-bottom: 16px;
+}
+.score-circle {
+  width: 56px; height: 56px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px; font-weight: 700;
+  font-family: 'Playfair Display', serif;
+}
+.score-excellent { background: rgba(48,209,88,0.15); color: var(--success); }
+.score-good { background: rgba(255,159,10,0.15); color: var(--warning); }
+.score-poor { background: rgba(255,69,58,0.15); color: var(--error); }
+.analysis-feedback { font-size: 14px; line-height: 1.6; color: var(--text-secondary); }
+.analysis-macros {
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  gap: 8px; margin-top: 16px;
+}
+.macro-box {
+  background: var(--surface); border-radius: var(--radius-sm);
+  padding: 12px 8px; text-align: center;
+}
+.macro-box .val { font-size: 18px; font-weight: 600; }
+.macro-box .lbl { font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 2px; }
+
+/* Payment Section */
+.payment-summary {
+  background: var(--surface-2);
+  border-radius: var(--radius);
+  padding: 18px; margin-bottom: 16px;
+}
+.payment-row {
+  display: flex; justify-content: space-between;
+  padding: 10px 0; font-size: 14px;
+}
+.payment-row:not(:last-child) { border-bottom: 1px solid var(--border); }
+.payment-row .label { color: var(--text-secondary); }
+.payment-row .amount { font-weight: 600; }
+.payment-total .amount { color: var(--accent); font-size: 18px; font-family: 'Playfair Display', serif; }
+
+.stripe-btn {
+  width: 100%; padding: 16px;
+  background: linear-gradient(135deg, var(--accent), var(--accent-light));
+  color: var(--bg); border: none; border-radius: var(--radius-sm);
+  font-size: 16px; font-weight: 600; cursor: pointer;
+  font-family: 'Inter', sans-serif;
+  transition: opacity 0.2s;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+}
+.stripe-btn:hover { opacity: 0.9; }
+
+/* Program View */
+.workout-block {
+  background: var(--surface-2);
+  border-radius: var(--radius-sm);
+  margin-bottom: 8px; overflow: hidden;
+}
+.workout-block-header {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 14px 16px; cursor: pointer;
+}
+.workout-block-header .block-name { font-weight: 600; font-size: 14px; }
+.workout-block-header .block-count { font-size: 12px; color: var(--text-muted); }
+.exercise-list { border-top: 1px solid var(--border); }
+.exercise-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 12px 16px; font-size: 13px;
+  border-bottom: 1px solid var(--border);
+}
+.exercise-row:last-child { border: none; }
+.exercise-name { flex: 1; }
+.exercise-prescription { color: var(--text-secondary); }
+
+/* Virtual Session */
+.virtual-session-card {
+  background: linear-gradient(135deg, #1a1530, #1c1a2e);
+  border: 1px solid rgba(94,92,230,0.2);
+  text-align: center; padding: 30px 20px;
+}
+.virtual-icon { font-size: 48px; margin-bottom: 14px; }
+.virtual-title { font-size: 18px; font-weight: 600; margin-bottom: 6px; }
+.virtual-desc { font-size: 13px; color: var(--text-secondary); line-height: 1.5; margin-bottom: 20px; }
+.btn-virtual {
+  background: #5e5ce6; color: white; padding: 14px 32px;
+  border: none; border-radius: var(--radius-sm); font-size: 15px;
+  font-weight: 600; cursor: pointer; font-family: 'Inter', sans-serif;
+}
+
+/* Message */
+.message-input-area {
+  display: flex; gap: 10px; margin-top: 16px;
+}
+.message-input {
+  flex: 1; background: var(--surface-2); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: 12px 16px;
+  color: var(--text); font-size: 14px; font-family: 'Inter', sans-serif;
+  outline: none; resize: none;
+}
+.message-input:focus { border-color: var(--accent); }
+.send-btn {
+  width: 46px; height: 46px; border-radius: var(--radius-sm);
+  background: var(--accent); border: none; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+}
+.send-btn svg { width: 20px; height: 20px; color: var(--bg); }
+
+.messages-list { margin-bottom: 12px; }
+.msg-bubble {
+  max-width: 80%; padding: 12px 16px;
+  border-radius: 16px; margin-bottom: 8px;
+  font-size: 14px; line-height: 1.5;
+}
+.msg-incoming {
+  background: var(--surface-2); border-bottom-left-radius: 4px;
+  margin-right: auto;
+}
+.msg-outgoing {
+  background: var(--accent-dim); color: var(--text);
+  border-bottom-right-radius: 4px; margin-left: auto;
+}
+.msg-time { font-size: 10px; color: var(--text-muted); margin-top: 4px; }
+.msg-sender { font-size: 11px; color: var(--accent); margin-bottom: 4px; font-weight: 500; }
+
+/* Recovery */
+.recovery-grid {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 12px; margin-bottom: 16px;
+}
+.recovery-item {
+  background: var(--surface-2); border-radius: var(--radius);
+  padding: 16px; text-align: center;
+}
+.recovery-item .rec-icon { font-size: 28px; margin-bottom: 8px; }
+.recovery-item .rec-val { font-size: 22px; font-weight: 600; }
+.recovery-item .rec-label { font-size: 11px; color: var(--text-secondary); margin-top: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
+.recovery-bar {
+  height: 4px; background: var(--surface-3); border-radius: 2px;
+  margin-top: 10px; overflow: hidden;
+}
+.recovery-bar-fill { height: 100%; border-radius: 2px; transition: width 1s ease; }
+
+/* Page views */
+.page { display: none; }
+.page.active { display: block; }
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 0; }
+
+/* Empty States */
+.empty-state { text-align: center; padding: 40px 20px; }
+.empty-state .icon { font-size: 48px; margin-bottom: 12px; }
+.empty-state .title { font-size: 16px; font-weight: 600; margin-bottom: 6px; }
+.empty-state .desc { font-size: 13px; color: var(--text-secondary); }
+
+/* Streak Banner */
+.streak-banner {
+  background: linear-gradient(135deg, rgba(201,169,110,0.1), rgba(201,169,110,0.05));
+  border: 1px solid rgba(201,169,110,0.15);
+  border-radius: var(--radius);
+  padding: 14px 18px;
+  display: flex; align-items: center; gap: 14px;
+  margin-bottom: 12px;
+}
+.streak-fire { font-size: 28px; }
+.streak-info .streak-count { font-size: 16px; font-weight: 600; }
+.streak-info .streak-label { font-size: 12px; color: var(--text-secondary); }
+</style>
+</head>
+<body>
+<div class="app-frame">
+  <!-- Header -->
+  <header class="app-header">
+    <div class="header-top">
+      <div>
+        <div class="greeting">Good morning</div>
+        <div class="client-name">Alexandra</div>
+      </div>
+      <div class="header-avatar" onclick="showModal('profile')">
+        AR
+        <div class="notification-dot"></div>
+      </div>
+    </div>
+  </header>
+
+  <!-- HOME PAGE -->
+  <main class="app-content">
+    <div class="page active" id="page-home">
+
+      <!-- Streak -->
+      <div style="margin-top: 20px;"></div>
+      <div class="streak-banner">
+        <div class="streak-fire">🔥</div>
+        <div class="streak-info">
+          <div class="streak-count">12-Day Streak</div>
+          <div class="streak-label">You haven't missed a session or meal log in 12 days</div>
+        </div>
+      </div>
+
+      <!-- Next Session -->
+      <div class="section-header">
+        <div class="section-title">Next Session</div>
+        <span class="section-link" onclick="switchTab('sessions')">All Sessions</span>
+      </div>
+      <div class="card next-session" onclick="showModal('session-detail')">
+        <div class="session-badge"><span class="dot"></span> Tomorrow</div>
+        <div class="session-type">Strength & Conditioning</div>
+        <div class="session-detail">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+          7:00 AM — 8:00 AM
+        </div>
+        <div class="session-detail">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          Private Studio — 742 Park Avenue
+        </div>
+        <div class="session-actions">
+          <button class="btn btn-primary" onclick="event.stopPropagation(); showModal('session-detail')">View Program</button>
+          <button class="btn btn-secondary" onclick="event.stopPropagation(); showModal('reschedule')">Reschedule</button>
+        </div>
+      </div>
+
+      <!-- Quick Actions -->
+      <div class="section-header">
+        <div class="section-title">Quick Actions</div>
+      </div>
+      <div class="quick-actions">
+        <div class="action-card" onclick="showModal('meal-scan')">
+          <div class="action-icon icon-scan">📸</div>
+          <div class="action-title">Scan Meal</div>
+          <div class="action-desc">Snap a photo for instant analysis</div>
+        </div>
+        <div class="action-card" onclick="switchTab('meals')">
+          <div class="action-icon icon-meal">🥗</div>
+          <div class="action-title">Meal Plan</div>
+          <div class="action-desc">Today's nutrition guide</div>
+        </div>
+        <div class="action-card" onclick="showModal('virtual')">
+          <div class="action-icon icon-virtual">📹</div>
+          <div class="action-title">Virtual Session</div>
+          <div class="action-desc">Train from anywhere</div>
+        </div>
+        <div class="action-card" onclick="showModal('message')">
+          <div class="action-icon icon-message">💬</div>
+          <div class="action-title">Message Ksania</div>
+          <div class="action-desc">Direct line to your trainer</div>
+        </div>
+      </div>
+
+      <!-- Today's Meal Summary -->
+      <div class="section-header">
+        <div class="section-title">Today's Nutrition</div>
+        <span class="section-link" onclick="switchTab('meals')">Full Plan</span>
+      </div>
+      <div class="card meal-plan-card">
+        <div class="meal-plan-header">
+          <div class="day-label">Friday, March 20</div>
+          <div class="cal-label">1,840 cal</div>
+        </div>
+        <div class="meal-items">
+          <div class="meal-item">
+            <div class="meal-time">7:00 AM</div>
+            <div class="meal-name">Greek Yogurt Bowl</div>
+            <div class="meal-macros">340 cal</div>
+            <div class="meal-check checked" onclick="event.stopPropagation(); toggleMeal(this)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg>
+            </div>
+          </div>
+          <div class="meal-item">
+            <div class="meal-time">10:30 AM</div>
+            <div class="meal-name">Green Smoothie</div>
+            <div class="meal-macros">220 cal</div>
+            <div class="meal-check checked" onclick="event.stopPropagation(); toggleMeal(this)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg>
+            </div>
+          </div>
+          <div class="meal-item">
+            <div class="meal-time">1:00 PM</div>
+            <div class="meal-name">Grilled Salmon Salad</div>
+            <div class="meal-macros">480 cal</div>
+            <div class="meal-check" onclick="event.stopPropagation(); toggleMeal(this)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg>
+            </div>
+          </div>
+          <div class="meal-item">
+            <div class="meal-time">4:00 PM</div>
+            <div class="meal-name">Almonds & Dark Chocolate</div>
+            <div class="meal-macros">280 cal</div>
+            <div class="meal-check" onclick="event.stopPropagation(); toggleMeal(this)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg>
+            </div>
+          </div>
+          <div class="meal-item">
+            <div class="meal-time">7:30 PM</div>
+            <div class="meal-name">Herb-Crusted Chicken</div>
+            <div class="meal-macros">520 cal</div>
+            <div class="meal-check" onclick="event.stopPropagation(); toggleMeal(this)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Progress -->
+      <div class="section-header">
+        <div class="section-title">This Week</div>
+        <span class="section-link" onclick="switchTab('progress')">Details</span>
+      </div>
+      <div class="progress-section">
+        <div class="progress-card">
+          <div class="label">Sessions</div>
+          <div class="value">4<span class="unit">/5</span></div>
+          <div class="change change-positive">On track</div>
+        </div>
+        <div class="progress-card">
+          <div class="label">Nutrition</div>
+          <div class="value">92<span class="unit">%</span></div>
+          <div class="change change-positive">+3% vs last week</div>
+        </div>
+        <div class="progress-card">
+          <div class="label">Recovery</div>
+          <div class="value">8.2</div>
+          <div class="change change-positive">Excellent</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SESSIONS PAGE -->
+    <div class="page" id="page-sessions">
+      <div class="section-header" style="margin-top: 20px;">
+        <div class="section-title">Upcoming Sessions</div>
+      </div>
+
+      <div class="card session-item" onclick="showModal('session-detail')">
+        <div class="session-date-block"><div class="day">21</div><div class="month">Mar</div></div>
+        <div class="session-info">
+          <div class="title">Strength & Conditioning</div>
+          <div class="time">7:00 AM — Private Studio</div>
+        </div>
+        <span class="session-status status-confirmed">Confirmed</span>
+      </div>
+
+      <div class="card session-item">
+        <div class="session-date-block"><div class="day">23</div><div class="month">Mar</div></div>
+        <div class="session-info">
+          <div class="title">HIIT & Mobility</div>
+          <div class="time">8:00 AM — Private Studio</div>
+        </div>
+        <span class="session-status status-confirmed">Confirmed</span>
+      </div>
+
+      <div class="card session-item">
+        <div class="session-date-block"><div class="day">25</div><div class="month">Mar</div></div>
+        <div class="session-info">
+          <div class="title">Upper Body Focus</div>
+          <div class="time">7:00 AM — Private Studio</div>
+        </div>
+        <span class="session-status status-pending">Pending</span>
+      </div>
+
+      <div class="card session-item">
+        <div class="session-date-block"><div class="day">27</div><div class="month">Mar</div></div>
+        <div class="session-info">
+          <div class="title">Virtual — Travel Session</div>
+          <div class="time">9:00 AM — Video Call</div>
+        </div>
+        <span class="session-status status-virtual">Virtual</span>
+      </div>
+
+      <div class="card session-item">
+        <div class="session-date-block"><div class="day">29</div><div class="month">Mar</div></div>
+        <div class="session-info">
+          <div class="title">Full Body Strength</div>
+          <div class="time">7:00 AM — Private Studio</div>
+        </div>
+        <span class="session-status status-pending">Pending</span>
+      </div>
+
+      <div class="section-header">
+        <div class="section-title">Session History</div>
+      </div>
+      <div class="card" style="padding: 14px 18px;">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <div>
+            <div style="font-size: 14px; font-weight: 500; color: var(--text-secondary);">March 2025</div>
+            <div style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">18 of 20 sessions completed</div>
+          </div>
+          <div style="font-size: 20px; font-weight: 600; color: var(--success);">90%</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MEALS PAGE -->
+    <div class="page" id="page-meals">
+      <div class="section-header" style="margin-top: 20px;">
+        <div class="section-title">Nutrition Plan</div>
+        <span class="section-link" onclick="showModal('meal-scan')">Scan Meal</span>
+      </div>
+
+      <!-- Macro Targets -->
+      <div class="analysis-macros" style="margin-bottom: 20px;">
+        <div class="macro-box">
+          <div class="val" style="color: var(--accent);">1,840</div>
+          <div class="lbl">Calories</div>
+        </div>
+        <div class="macro-box">
+          <div class="val">145g</div>
+          <div class="lbl">Protein</div>
+        </div>
+        <div class="macro-box">
+          <div class="val">180g</div>
+          <div class="lbl">Carbs</div>
+        </div>
+        <div class="macro-box">
+          <div class="val">62g</div>
+          <div class="lbl">Fat</div>
+        </div>
+      </div>
+
+      <!-- Full Day Meals -->
+      <div class="card meal-plan-card">
+        <div class="meal-plan-header">
+          <div class="day-label">Breakfast</div>
+          <div class="cal-label">340 cal</div>
+        </div>
+        <div style="padding: 14px 18px; font-size: 13px; color: var(--text-secondary); line-height: 1.7;">
+          <div style="font-size: 15px; font-weight: 500; color: var(--text); margin-bottom: 8px;">Greek Yogurt Power Bowl</div>
+          1 cup plain Greek yogurt (2%)<br>
+          ½ cup mixed berries<br>
+          1 tbsp raw honey<br>
+          2 tbsp granola (low sugar)<br>
+          1 tbsp chia seeds
+        </div>
+      </div>
+
+      <div class="card meal-plan-card">
+        <div class="meal-plan-header">
+          <div class="day-label">Mid-Morning</div>
+          <div class="cal-label">220 cal</div>
+        </div>
+        <div style="padding: 14px 18px; font-size: 13px; color: var(--text-secondary); line-height: 1.7;">
+          <div style="font-size: 15px; font-weight: 500; color: var(--text); margin-bottom: 8px;">Green Recovery Smoothie</div>
+          1 cup spinach<br>
+          ½ banana<br>
+          1 scoop vanilla protein<br>
+          1 cup almond milk<br>
+          1 tbsp almond butter
+        </div>
+      </div>
+
+      <div class="card meal-plan-card">
+        <div class="meal-plan-header">
+          <div class="day-label">Lunch</div>
+          <div class="cal-label">480 cal</div>
+        </div>
+        <div style="padding: 14px 18px; font-size: 13px; color: var(--text-secondary); line-height: 1.7;">
+          <div style="font-size: 15px; font-weight: 500; color: var(--text); margin-bottom: 8px;">Grilled Salmon Salad</div>
+          6 oz wild-caught salmon<br>
+          2 cups mixed greens<br>
+          ½ avocado<br>
+          Cherry tomatoes, cucumber<br>
+          Lemon olive oil dressing
+        </div>
+      </div>
+
+      <div class="card meal-plan-card">
+        <div class="meal-plan-header">
+          <div class="day-label">Afternoon Snack</div>
+          <div class="cal-label">280 cal</div>
+        </div>
+        <div style="padding: 14px 18px; font-size: 13px; color: var(--text-secondary); line-height: 1.7;">
+          <div style="font-size: 15px; font-weight: 500; color: var(--text); margin-bottom: 8px;">Almonds & Dark Chocolate</div>
+          ¼ cup raw almonds<br>
+          2 squares 85% dark chocolate<br>
+          1 small apple
+        </div>
+      </div>
+
+      <div class="card meal-plan-card">
+        <div class="meal-plan-header">
+          <div class="day-label">Dinner</div>
+          <div class="cal-label">520 cal</div>
+        </div>
+        <div style="padding: 14px 18px; font-size: 13px; color: var(--text-secondary); line-height: 1.7;">
+          <div style="font-size: 15px; font-weight: 500; color: var(--text); margin-bottom: 8px;">Herb-Crusted Chicken Breast</div>
+          7 oz organic chicken breast<br>
+          1 cup roasted sweet potato<br>
+          Steamed broccoli & asparagus<br>
+          Garlic herb butter (1 tsp)
+        </div>
+      </div>
+
+      <div style="margin-top: 20px; padding: 16px; background: var(--surface); border-radius: var(--radius); border: 1px solid var(--border);">
+        <div style="font-size: 13px; color: var(--accent); font-weight: 500; margin-bottom: 6px;">Ksania's Note</div>
+        <div style="font-size: 13px; color: var(--text-secondary); line-height: 1.6;">
+          Great adherence this week! Let's bump protein slightly to 150g next week to support the new strength cycle. Remember: hydrate with at least 3L water daily. 💧
+        </div>
+      </div>
+    </div>
+
+    <!-- PROGRESS PAGE -->
+    <div class="page" id="page-progress">
+      <div class="section-header" style="margin-top: 20px;">
+        <div class="section-title">Your Progress</div>
+      </div>
+
+      <div class="progress-section">
+        <div class="progress-card">
+          <div class="label">Weight</div>
+          <div class="value">138<span class="unit"> lbs</span></div>
+          <div class="change change-positive">-2.4 lbs this month</div>
+        </div>
+        <div class="progress-card">
+          <div class="label">Body Fat</div>
+          <div class="value">19.2<span class="unit">%</span></div>
+          <div class="change change-positive">-0.8% this month</div>
+        </div>
+      </div>
+
+      <div class="progress-section">
+        <div class="progress-card">
+          <div class="label">Lean Mass</div>
+          <div class="value">111.5<span class="unit"> lbs</span></div>
+          <div class="change change-positive">+1.2 lbs</div>
+        </div>
+        <div class="progress-card">
+          <div class="label">VO2 Max</div>
+          <div class="value">42<span class="unit"> ml</span></div>
+          <div class="change change-positive">+3 vs baseline</div>
+        </div>
+      </div>
+
+      <div class="section-header">
+        <div class="section-title">Strength PRs</div>
+      </div>
+      <div class="card" style="padding: 0;">
+        <div class="exercise-row">
+          <div class="exercise-name" style="font-weight: 500;">Back Squat</div>
+          <div class="exercise-prescription" style="color: var(--accent); font-weight: 600;">165 lbs</div>
+        </div>
+        <div class="exercise-row">
+          <div class="exercise-name" style="font-weight: 500;">Deadlift</div>
+          <div class="exercise-prescription" style="color: var(--accent); font-weight: 600;">195 lbs</div>
+        </div>
+        <div class="exercise-row">
+          <div class="exercise-name" style="font-weight: 500;">Bench Press</div>
+          <div class="exercise-prescription" style="color: var(--accent); font-weight: 600;">105 lbs</div>
+        </div>
+        <div class="exercise-row">
+          <div class="exercise-name" style="font-weight: 500;">Pull-ups</div>
+          <div class="exercise-prescription" style="color: var(--accent); font-weight: 600;">8 reps</div>
+        </div>
+      </div>
+
+      <div class="section-header">
+        <div class="section-title">Recovery Score</div>
+      </div>
+      <div class="recovery-grid">
+        <div class="recovery-item">
+          <div class="rec-icon">😴</div>
+          <div class="rec-val">7.8h</div>
+          <div class="rec-label">Avg Sleep</div>
+          <div class="recovery-bar"><div class="recovery-bar-fill" style="width: 85%; background: var(--success);"></div></div>
+        </div>
+        <div class="recovery-item">
+          <div class="rec-icon">💧</div>
+          <div class="rec-val">2.8L</div>
+          <div class="rec-label">Hydration</div>
+          <div class="recovery-bar"><div class="recovery-bar-fill" style="width: 75%; background: #64d2ff;"></div></div>
+        </div>
+        <div class="recovery-item">
+          <div class="rec-icon">🧘</div>
+          <div class="rec-val">Low</div>
+          <div class="rec-label">Stress</div>
+          <div class="recovery-bar"><div class="recovery-bar-fill" style="width: 25%; background: var(--success);"></div></div>
+        </div>
+        <div class="recovery-item">
+          <div class="rec-icon">❤️</div>
+          <div class="rec-val">56</div>
+          <div class="rec-label">Resting HR</div>
+          <div class="recovery-bar"><div class="recovery-bar-fill" style="width: 80%; background: var(--success);"></div></div>
+        </div>
+      </div>
+
+      <!-- Photo Timeline -->
+      <div class="section-header">
+        <div class="section-title">Progress Photos</div>
+      </div>
+      <div class="card" style="text-align: center; padding: 30px;">
+        <div style="font-size: 36px; margin-bottom: 10px;">📷</div>
+        <div style="font-size: 14px; font-weight: 500; margin-bottom: 4px;">Next check-in photo: March 25</div>
+        <div style="font-size: 12px; color: var(--text-secondary);">Photos are taken every 4 weeks for tracking</div>
+      </div>
+    </div>
+
+    <!-- ACCOUNT PAGE -->
+    <div class="page" id="page-account">
+      <div class="section-header" style="margin-top: 20px;">
+        <div class="section-title">Account</div>
+      </div>
+
+      <div class="card" style="display: flex; align-items: center; gap: 16px; padding: 20px;">
+        <div style="width: 60px; height: 60px; border-radius: 50%; background: linear-gradient(135deg, var(--accent), var(--accent-light)); display: flex; align-items: center; justify-content: center; font-size: 22px; font-weight: 600; color: var(--bg);">AR</div>
+        <div>
+          <div style="font-size: 18px; font-weight: 600;">Alexandra Reynolds</div>
+          <div style="font-size: 13px; color: var(--text-secondary);">Premium Member since Jan 2025</div>
+        </div>
+      </div>
+
+      <div class="section-header">
+        <div class="section-title">Membership</div>
+      </div>
+      <div class="card">
+        <div class="payment-summary">
+          <div class="payment-row">
+            <span class="label">Plan</span>
+            <span class="amount">Private Training — Elite</span>
+          </div>
+          <div class="payment-row">
+            <span class="label">Sessions / month</span>
+            <span class="amount">20 sessions</span>
+          </div>
+          <div class="payment-row">
+            <span class="label">Next billing</span>
+            <span class="amount">April 1, 2025</span>
+          </div>
+          <div class="payment-row payment-total">
+            <span class="label">Monthly</span>
+            <span class="amount">$2,400</span>
+          </div>
+        </div>
+        <button class="stripe-btn" onclick="showModal('payment')">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+          Manage Payment
+        </button>
+      </div>
+
+      <div class="section-header">
+        <div class="section-title">Quick Links</div>
+      </div>
+      <div class="card" style="padding: 0;">
+        <div class="exercise-row" style="cursor: pointer;" onclick="showModal('message')">
+          <div class="exercise-name" style="font-weight: 500;">💬 Message Ksania</div>
+          <div class="exercise-prescription">→</div>
+        </div>
+        <div class="exercise-row" style="cursor: pointer;">
+          <div class="exercise-name" style="font-weight: 500;">📋 Health Questionnaire</div>
+          <div class="exercise-prescription">→</div>
+        </div>
+        <div class="exercise-row" style="cursor: pointer;">
+          <div class="exercise-name" style="font-weight: 500;">⚙️ Notification Preferences</div>
+          <div class="exercise-prescription">→</div>
+        </div>
+        <div class="exercise-row" style="cursor: pointer;">
+          <div class="exercise-name" style="font-weight: 500;">📄 Terms & Privacy</div>
+          <div class="exercise-prescription">→</div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Tab Bar -->
+  <nav class="tab-bar">
+    <button class="tab-item active" data-tab="home" onclick="switchTab('home')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      <span>Home</span>
+    </button>
+    <button class="tab-item" data-tab="sessions" onclick="switchTab('sessions')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      <span>Sessions</span>
+    </button>
+    <button class="tab-item" data-tab="meals" onclick="switchTab('meals')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 8h1a4 4 0 010 8h-1"/><path d="M2 8h16v9a4 4 0 01-4 4H6a4 4 0 01-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg>
+      <span>Nutrition</span>
+    </button>
+    <button class="tab-item" data-tab="progress" onclick="switchTab('progress')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+      <span>Progress</span>
+    </button>
+    <button class="tab-item" data-tab="account" onclick="switchTab('account')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      <span>Account</span>
+    </button>
+  </nav>
+
+  <!-- MODALS -->
+
+  <!-- Session Detail Modal -->
+  <div class="modal-overlay" id="modal-session-detail" onclick="closeModal(event, 'session-detail')">
+    <div class="modal-sheet" onclick="event.stopPropagation()">
+      <div class="modal-handle"></div>
+      <div class="modal-title">Tomorrow's Program</div>
+      <div style="margin-bottom: 16px;">
+        <div style="font-size: 13px; color: var(--accent); font-weight: 500; margin-bottom: 4px;">STRENGTH & CONDITIONING</div>
+        <div style="font-size: 14px; color: var(--text-secondary);">Friday, March 21 — 7:00 AM</div>
+        <div style="font-size: 13px; color: var(--text-muted); margin-top: 2px;">Focus: Lower body strength + core stability</div>
+      </div>
+
+      <div class="workout-block">
+        <div class="workout-block-header">
+          <span class="block-name">Warm-Up</span>
+          <span class="block-count">8 min</span>
+        </div>
+        <div class="exercise-list">
+          <div class="exercise-row"><div class="exercise-name">Foam Roll — Quads & Glutes</div><div class="exercise-prescription">2 min</div></div>
+          <div class="exercise-row"><div class="exercise-name">Banded Walks</div><div class="exercise-prescription">2 × 12</div></div>
+          <div class="exercise-row"><div class="exercise-name">Hip 90/90 Stretch</div><div class="exercise-prescription">60s/side</div></div>
+        </div>
+      </div>
+
+      <div class="workout-block">
+        <div class="workout-block-header">
+          <span class="block-name">Block A — Primary Lift</span>
+          <span class="block-count">4 exercises</span>
+        </div>
+        <div class="exercise-list">
+          <div class="exercise-row"><div class="exercise-name">Back Squat</div><div class="exercise-prescription">4 × 6 @ 135 lbs</div></div>
+          <div class="exercise-row"><div class="exercise-name">Romanian Deadlift</div><div class="exercise-prescription">3 × 10 @ 95 lbs</div></div>
+          <div class="exercise-row"><div class="exercise-name">Walking Lunges</div><div class="exercise-prescription">3 × 12/leg</div></div>
+          <div class="exercise-row"><div class="exercise-name">Leg Press</div><div class="exercise-prescription">3 × 12</div></div>
+        </div>
+      </div>
+
+      <div class="workout-block">
+        <div class="workout-block-header">
+          <span class="block-name">Block B — Accessories</span>
+          <span class="block-count">3 exercises</span>
+        </div>
+        <div class="exercise-list">
+          <div class="exercise-row"><div class="exercise-name">Cable Pull-Through</div><div class="exercise-prescription">3 × 15</div></div>
+          <div class="exercise-row"><div class="exercise-name">Pallof Press</div><div class="exercise-prescription">3 × 10/side</div></div>
+          <div class="exercise-row"><div class="exercise-name">Dead Bug</div><div class="exercise-prescription">3 × 8/side</div></div>
+        </div>
+      </div>
+
+      <div class="workout-block">
+        <div class="workout-block-header">
+          <span class="block-name">Finisher</span>
+          <span class="block-count">6 min</span>
+        </div>
+        <div class="exercise-list">
+          <div class="exercise-row"><div class="exercise-name">Assault Bike Intervals</div><div class="exercise-prescription">30s on / 30s off × 6</div></div>
+        </div>
+      </div>
+
+      <div style="margin-top: 16px; padding: 14px; background: var(--surface-2); border-radius: var(--radius-sm);">
+        <div style="font-size: 13px; color: var(--accent); font-weight: 500; margin-bottom: 4px;">Ksania's Note</div>
+        <div style="font-size: 13px; color: var(--text-secondary); line-height: 1.5;">
+          Adding 5 lbs to squat this week — you've earned it. Focus on depth and bracing. We'll film your form for review.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Meal Scan Modal -->
+  <div class="modal-overlay" id="modal-meal-scan" onclick="closeModal(event, 'meal-scan')">
+    <div class="modal-sheet" onclick="event.stopPropagation()">
+      <div class="modal-handle"></div>
+      <div class="modal-title">Meal Scanner</div>
+      <p style="font-size: 14px; color: var(--text-secondary); margin-bottom: 16px;">
+        Take a photo of your meal for instant nutritional analysis and feedback from Ksania's AI assistant.
+      </p>
+      <div class="scanner-area" id="scanner-area" onclick="simulateScan()">
+        <div class="icon">📸</div>
+        <div class="label">Tap to take a photo</div>
+        <div class="sublabel">or drag and drop an image</div>
+      </div>
+      <div class="analysis-result" id="analysis-result">
+        <div class="analysis-score">
+          <div class="score-circle score-excellent">92</div>
+          <div>
+            <div style="font-weight: 600; font-size: 16px;">Excellent Choice</div>
+            <div style="font-size: 13px; color: var(--text-secondary);">Aligned with your plan</div>
+          </div>
+        </div>
+        <div class="analysis-feedback">
+          Great balance of lean protein and vegetables. The salmon provides excellent omega-3s for recovery. Consider adding a small portion of complex carbs like sweet potato to fuel tomorrow's strength session.
+        </div>
+        <div class="analysis-macros">
+          <div class="macro-box"><div class="val">520</div><div class="lbl">Cal</div></div>
+          <div class="macro-box"><div class="val">42g</div><div class="lbl">Protein</div></div>
+          <div class="macro-box"><div class="val">28g</div><div class="lbl">Carbs</div></div>
+          <div class="macro-box"><div class="val">24g</div><div class="lbl">Fat</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Virtual Session Modal -->
+  <div class="modal-overlay" id="modal-virtual" onclick="closeModal(event, 'virtual')">
+    <div class="modal-sheet" onclick="event.stopPropagation()">
+      <div class="modal-handle"></div>
+      <div class="modal-title">Virtual Training</div>
+      <div class="card virtual-session-card">
+        <div class="virtual-icon">📹</div>
+        <div class="virtual-title">Train From Anywhere</div>
+        <div class="virtual-desc">
+          Traveling or prefer to train from home? Connect with Ksania via HD video for a fully guided session. All you need is a phone or laptop and minimal equipment.
+        </div>
+        <button class="btn-virtual" onclick="alert('This would launch the video call interface')">Schedule Virtual Session</button>
+      </div>
+      <div style="margin-top: 16px;">
+        <div class="section-header" style="margin-top: 0;">
+          <div class="section-title" style="font-size: 16px;">How It Works</div>
+        </div>
+        <div class="card" style="padding: 14px 18px;">
+          <div style="display: flex; gap: 12px; align-items: flex-start; margin-bottom: 14px;">
+            <div style="min-width: 28px; height: 28px; background: var(--accent-dim); color: var(--accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 600;">1</div>
+            <div><div style="font-size: 14px; font-weight: 500;">Book a slot</div><div style="font-size: 12px; color: var(--text-secondary);">Choose from available virtual time slots</div></div>
+          </div>
+          <div style="display: flex; gap: 12px; align-items: flex-start; margin-bottom: 14px;">
+            <div style="min-width: 28px; height: 28px; background: var(--accent-dim); color: var(--accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 600;">2</div>
+            <div><div style="font-size: 14px; font-weight: 500;">Get your program</div><div style="font-size: 12px; color: var(--text-secondary);">Ksania adapts your workout for available equipment</div></div>
+          </div>
+          <div style="display: flex; gap: 12px; align-items: flex-start;">
+            <div style="min-width: 28px; height: 28px; background: var(--accent-dim); color: var(--accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 600;">3</div>
+            <div><div style="font-size: 14px; font-weight: 500;">Connect & train</div><div style="font-size: 12px; color: var(--text-secondary);">Join via the app link — real-time coaching with form correction</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Message Modal -->
+  <div class="modal-overlay" id="modal-message" onclick="closeModal(event, 'message')">
+    <div class="modal-sheet" onclick="event.stopPropagation()">
+      <div class="modal-handle"></div>
+      <div class="modal-title">Message Ksania</div>
+      <div class="messages-list">
+        <div class="msg-bubble msg-incoming">
+          <div class="msg-sender">Ksania</div>
+          Great session today! Your squat form is really improving. Remember to stretch tonight — especially hip flexors.
+          <div class="msg-time">Today, 9:15 AM</div>
+        </div>
+        <div class="msg-bubble msg-outgoing">
+          Thank you! Feeling stronger every week. Should I still do the mobility routine on rest days?
+          <div class="msg-time">Today, 10:30 AM</div>
+        </div>
+        <div class="msg-bubble msg-incoming">
+          <div class="msg-sender">Ksania</div>
+          Absolutely — 15 min on rest days will make a big difference. I'll add a specific recovery flow to your plan. 🧘‍♀️
+          <div class="msg-time">Today, 10:45 AM</div>
+        </div>
+      </div>
+      <div class="message-input-area">
+        <textarea class="message-input" rows="1" placeholder="Type a message..."></textarea>
+        <button class="send-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Payment Modal -->
+  <div class="modal-overlay" id="modal-payment" onclick="closeModal(event, 'payment')">
+    <div class="modal-sheet" onclick="event.stopPropagation()">
+      <div class="modal-handle"></div>
+      <div class="modal-title">Payment</div>
+      <div class="payment-summary">
+        <div class="payment-row">
+          <span class="label">Plan</span>
+          <span class="amount">Private Training — Elite</span>
+        </div>
+        <div class="payment-row">
+          <span class="label">Sessions included</span>
+          <span class="amount">20 / month</span>
+        </div>
+        <div class="payment-row">
+          <span class="label">Meal planning & analysis</span>
+          <span class="amount">Included</span>
+        </div>
+        <div class="payment-row">
+          <span class="label">Virtual sessions</span>
+          <span class="amount">Included</span>
+        </div>
+        <div class="payment-row">
+          <span class="label">Recovery tracking</span>
+          <span class="amount">Included</span>
+        </div>
+        <div class="payment-row payment-total">
+          <span class="label">Monthly total</span>
+          <span class="amount">$2,400</span>
+        </div>
+      </div>
+      <div style="margin-bottom: 16px;">
+        <div style="font-size: 13px; color: var(--text-secondary); margin-bottom: 10px;">Payment method on file</div>
+        <div class="card" style="display: flex; align-items: center; gap: 12px; margin-bottom: 0;">
+          <div style="font-size: 24px;">💳</div>
+          <div style="flex: 1;">
+            <div style="font-size: 14px; font-weight: 500;">•••• •••• •••• 4242</div>
+            <div style="font-size: 12px; color: var(--text-secondary);">Expires 12/27</div>
+          </div>
+          <span style="font-size: 13px; color: var(--accent); cursor: pointer;">Change</span>
+        </div>
+      </div>
+      <div style="font-size: 13px; color: var(--text-secondary); margin-bottom: 16px; display: flex; align-items: center; gap: 6px;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+        Secured by Stripe. Your payment information is encrypted.
+      </div>
+      <button class="stripe-btn">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+        Confirm Payment — $2,400
+      </button>
+    </div>
+  </div>
+
+  <!-- Reschedule Modal -->
+  <div class="modal-overlay" id="modal-reschedule" onclick="closeModal(event, 'reschedule')">
+    <div class="modal-sheet" onclick="event.stopPropagation()">
+      <div class="modal-handle"></div>
+      <div class="modal-title">Reschedule Session</div>
+      <p style="font-size: 14px; color: var(--text-secondary); margin-bottom: 20px;">
+        Select a new time for your Strength & Conditioning session. Cancellations within 12 hours are subject to a late fee.
+      </p>
+      <div style="margin-bottom: 16px;">
+        <div style="font-size: 13px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 10px;">Available slots — March 21</div>
+        <div class="card" style="padding: 14px 18px; border: 1px solid var(--accent); margin-bottom: 8px;">
+          <div style="font-weight: 500;">6:00 AM — 7:00 AM</div>
+          <div style="font-size: 12px; color: var(--text-secondary); margin-top: 2px;">Private Studio</div>
+        </div>
+        <div class="card" style="padding: 14px 18px; margin-bottom: 8px;">
+          <div style="font-weight: 500;">9:00 AM — 10:00 AM</div>
+          <div style="font-size: 12px; color: var(--text-secondary); margin-top: 2px;">Private Studio</div>
+        </div>
+        <div class="card" style="padding: 14px 18px; margin-bottom: 8px;">
+          <div style="font-weight: 500;">12:00 PM — 1:00 PM</div>
+          <div style="font-size: 12px; color: var(--text-secondary); margin-top: 2px;">Private Studio</div>
+        </div>
+        <div class="card" style="padding: 14px 18px;">
+          <div style="font-weight: 500;">5:00 PM — 6:00 PM</div>
+          <div style="font-size: 12px; color: var(--text-secondary); margin-top: 2px;">Private Studio</div>
+        </div>
+      </div>
+      <button class="stripe-btn" style="background: var(--surface-3); color: var(--text);">Confirm Reschedule</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// Tab Navigation
+function switchTab(tab) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+  document.getElementById('page-' + tab).classList.add('active');
+  document.querySelector('[data-tab="' + tab + '"]').classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+// Modal System
+function showModal(name) {
+  document.getElementById('modal-' + name).classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeModal(event, name) {
+  if (event.target === event.currentTarget) {
+    document.getElementById('modal-' + name).classList.remove('active');
+    document.body.style.overflow = '';
+  }
+}
+
+// Meal Check Toggle
+function toggleMeal(el) {
+  el.classList.toggle('checked');
+}
+
+// Meal Scan — uses the native camera inside the iOS app, web fallback otherwise
+async function simulateScan() {
+  const scanner = document.getElementById('scanner-area');
+
+  // Native camera via Capacitor (inside the iOS app)
+  if (window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform()) {
+    try {
+      const { Camera } = window.Capacitor.Plugins;
+      const photo = await Camera.getPhoto({
+        quality: 80,
+        allowEditing: false,
+        resultType: 'dataUrl',
+        source: 'CAMERA'
+      });
+      showMealPhoto(photo.dataUrl);
+      return;
+    } catch (e) {
+      return; // user cancelled the camera
+    }
+  }
+
+  // Web fallback: file picker with camera capture hint
+  let input = document.getElementById('meal-photo-input');
+  if (!input) {
+    input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*';
+    input.capture = 'environment';
+    input.id = 'meal-photo-input';
+    input.style.display = 'none';
+    document.body.appendChild(input);
+    input.addEventListener('change', () => {
+      if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = () => showMealPhoto(reader.result);
+        reader.readAsDataURL(input.files[0]);
+      }
+    });
+  }
+  input.click();
+}
+
+function showMealPhoto(dataUrl) {
+  const scanner = document.getElementById('scanner-area');
+  const result = document.getElementById('analysis-result');
+
+  scanner.innerHTML = '<img src="' + dataUrl + '" style="max-width:100%;max-height:160px;border-radius:12px;margin-bottom:8px;" alt="Your meal"><div class="label" style="animation: pulse 1s infinite;">Analyzing your meal...</div>';
+  scanner.style.borderColor = 'var(--accent)';
+
+  setTimeout(() => {
+    scanner.querySelector('.label').textContent = 'Analysis complete';
+    scanner.querySelector('.label').style.animation = 'none';
+    scanner.style.borderColor = 'var(--success)';
+    result.classList.add('visible');
+  }, 2000);
+}
+
+// Set greeting based on time
+function updateGreeting() {
+  const hour = new Date().getHours();
+  const greeting = document.querySelector('.greeting');
+  if (hour < 12) greeting.textContent = 'Good morning';
+  else if (hour < 17) greeting.textContent = 'Good afternoon';
+  else greeting.textContent = 'Good evening';
+}
+
+updateGreeting();
+</script>
+</body>
+</html>
